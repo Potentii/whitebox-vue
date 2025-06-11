@@ -1,6 +1,6 @@
 {
 	"name": "whitebox-vue",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Whitebox components library for Vue",
 	"author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
 	"license": "MIT",

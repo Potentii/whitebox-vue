@@ -1,1 +1,8 @@
-export * from './src/components/index.mjs';
+import WbButton from "./src/components/wb-button.vue";
+
+
+
+export {
+	WbButton,
+}
+

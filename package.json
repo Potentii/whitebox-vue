@@ -1,0 +1,37 @@
+{
+	"name": "whitebox-vue",
+	"version": "0.0.1",
+	"description": "Whitebox components library for Vue",
+	"author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
+	"license": "MIT",
+
+	"main": "index.mjs",
+	"type": "module",
+
+	"files": [
+		"index.mjs",
+		"src/**/*",
+		"README.md",
+		"LICENSE"
+	],
+	"keywords": [
+		"whitebox",
+		"component",
+		"vue",
+		"ui"
+	],
+
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Potentii/whitebox-vue.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Potentii/whitebox-vue/issues"
+	},
+	"homepage": "https://github.com/Potentii/whitebox-vue#readme",
+
+
+	"peerDependencies": {
+		"vue": "^3.*.*"
+	}
+}

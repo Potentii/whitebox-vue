@@ -1,6 +1,6 @@
 {
 	"name": "whitebox-vue",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Whitebox components library for Vue",
 	"author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
 	"license": "MIT",
@@ -10,7 +10,7 @@
 	"type": "module",
 
 	"scripts": {
-		"vite-build": "tsc && vite build"
+		"build": "tsc && vite build"
 	},
 
 	"files": [

@@ -4,9 +4,7 @@
 		v-bind="$attrs"
 		:class="{
 			'--capsule': !!capsule,
-			'--round': !!round,
 			'--outline': !!outline,
-			'--outline-interaction': !!computed_outline_interaction,
 			'--fullwidth': !!fullwidth,
 			'--bold': !!bold,
 			'--italic': !!italic,
@@ -14,13 +12,19 @@
 
 			'--custom-slot': !!customSlot,
 
-			'--unit-ratio': is_unit_ratio,
+			'--unit-ratio': isUnitRatio,
 
+			'--biggest': !!sizeBiggest,
+			'--big': !!sizeBig,
+			'--small': !!sizeSmall,
+			'--smallest': !!sizeSmallest,
 
 			'--is-button': type === 'button' && !to,
 			'--is-submit': type === 'submit',
 			'--is-link': !!to,
 	 	}"
+		:data-relevancy="relevancy"
+		:data-intent="intent"
 		:data-align="align"
 		:is="component"
 		:to="to"
@@ -33,17 +37,17 @@
 		:disabled="disabled">
 
 		<template v-for="contentItem in contentOrder">
-<!--			<v-loading-spinner-->
-<!--				class="-loading"-->
-<!--				v-if="contentItem == 'loading' && loading">-->
-<!--			</v-loading-spinner>-->
+			<wb-loading-spinner
+				class="-loading"
+				v-if="contentItem == 'loading' && loading">
+			</wb-loading-spinner>
 
 
-<!--			<wb-icon-->
-<!--				class="-icon"-->
-<!--				block-mode-->
-<!--				v-if="contentItem == 'icon' && icon"-->
-<!--				:icon-provider="iconProviderClass">{{ icon }}</wb-icon>-->
+			<wb-icon
+				class="-icon"
+				block-mode
+				v-if="contentItem == 'icon' && icon"
+				:icon-provider="iconProvider">{{ icon }}</wb-icon>
 
 
 			<object
@@ -75,11 +79,8 @@
 </template>
 
 
-<script lang="ts">
+<script>
 
-/**
- * @typedef {'material-icons'|'material-symbols-outlined'|'material-symbols-rounded'|'material-symbols-sharp'} EVButtonIconProvider
- */
 /**
  * @typedef {'loading'|'icon'|'image'|'text'|'slot'} EVButtonContentOrderItem
  */
@@ -92,12 +93,16 @@
 /**
  * @typedef {'start'|'end'} EVButtonImagePosition
  */
+import WbIcon from "./wb-icon.vue";
+import WbLoadingSpinner from "./wb-loading-spinner.vue";
+
 /**
  * @typedef {'button'|'submit'} EVButtonType
  */
 export default {
 
 	name: 'wb-button',
+	components: {WbLoadingSpinner, WbIcon},
 
 
 	// components: {WbIcon, VLoadingSpinner},
@@ -128,9 +133,9 @@ export default {
 			required: false
 		},
 		/**
-		 * @type {EVButtonIconProvider}
+		 * @type {EWbIconProvider}
 		 */
-		iconProviderClass: {
+		iconProvider: {
 			type: String,
 			required: false,
 			validator: value => ['material-icons','material-symbols-outlined','material-symbols-rounded','material-symbols-sharp'].includes(value),
@@ -206,52 +211,33 @@ export default {
 		},
 
 
-		// sizeXxs: {
-		// 	type: Boolean,
-		// 	required: false,
-		// 	default: false
-		// },
-		// sizeXs: {
-		// 	type: Boolean,
-		// 	required: false,
-		// 	default: false
-		// },
-		// sizeS: {
-		// 	type: Boolean,
-		// 	required: false,
-		// 	default: false
-		// },
-		// sizeM: {
-		// 	type: Boolean,
-		// 	required: false,
-		// 	default: false
-		// },
-		// sizeL: {
-		// 	type: Boolean,
-		// 	required: false,
-		// 	default: false
-		// },
-		// sizeXl: {
-		// 	type: Boolean,
-		// 	required: false,
-		// 	default: false
-		// },
 
+		sizeBiggest: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeBig: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeSmall: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeSmallest: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
 
 
 		outline: {
-			type: Boolean,
-			required: false,
-			default: false
-		},
-
-		outlineInteraction: {
-			type: Boolean,
-			required: false,
-			default: false
-		},
-
-		round: {
 			type: Boolean,
 			required: false,
 			default: false
@@ -286,6 +272,27 @@ export default {
 		},
 
 		/**
+		 * @type {'normal'|'main'}
+		 */
+		relevancy: {
+			type: String,
+			required: false,
+			default: 'normal',
+			validator: value => ['normal','main'].includes(value),
+		},
+
+		/**
+		 * @type {'neutral'|'positive'|'negative'}
+		 */
+		intent: {
+			type: String,
+			required: false,
+			default: 'neutral',
+			validator: value => ['neutral','positive','negative'].includes(value),
+		},
+
+
+		/**
 		 * @type {'start'|'center'|'end'}
 		 */
 		align: {
@@ -300,16 +307,32 @@ export default {
 
 	computed: {
 
+		/**
+		 * @returns {'RouterLink'|'button'}
+		 */
 		component(){
 			return this.to ? 'RouterLink' : 'button';
 		},
 
-		is_unit_ratio() {
-			return !this.text && !this.customSlot;
+		/**
+		 * @returns {boolean}
+		 */
+		isOnlyIcon() {
+			return this.icon && !this.text && !this.customSlot && !this.loading;
 		},
 
-		computed_outline_interaction() {
-			return this.outlineInteraction || this.outline;
+		/**
+		 * @returns {boolean}
+		 */
+		isOnlyLoading() {
+			return this.loading && !this.text && !this.customSlot && !this.icon;
+		},
+
+		/**
+		 * @returns {boolean}
+		 */
+		isUnitRatio() {
+			return (this.isOnlyIcon || this.isOnlyLoading) && !(this.isOnlyIcon && this.isOnlyLoading);
 		},
 
 		formId(){
@@ -377,17 +400,22 @@ export default {
 	inherits: true;
 	initial-value: auto;
 }
+@property --wb-button--padding {
+	syntax: "<length-percentage>";
+	inherits: true;
+	initial-value: auto;
+}
 
 @property --wb-button--bg {
 	syntax: "<color>";
 	inherits: true;
-	initial-value: transparent;
+	initial-value: var(--wb--primary-color, transparent);
 }
 
 @property --wb-button--fg {
 	syntax: "<color>";
 	inherits: true;
-	initial-value: #000000;
+	initial-value: var(--wb--on-primary-color, inherit);
 }
 @property --wb-button--fsize {
 	syntax: "<length-percentage>";
@@ -408,54 +436,115 @@ export default {
 @property --wb-button--border-radius{
 	syntax: "<length-percentage>";
 	inherits: true;
-	initial-value: 0;
+	initial-value: 8px;
 }
 
-@property --wb-button--icon--bg{
-	syntax: "<color>";
-	inherits: true;
-	initial-value: auto;
-}
-@property --wb-button--icon--fg{
-	syntax: "<color>";
-	inherits: true;
-	initial-value: auto;
-}
-@property --wb-button--icon--bg--hover{
-	syntax: "<color>";
-	inherits: true;
-	initial-value: auto;
-}
-@property --wb-button--icon--fg--hover{
-	syntax: "<color>";
-	inherits: true;
-	initial-value: auto;
-}
-@property --wb-button--icon--padding{
+@property --wb-button--gap{
 	syntax: "<length-percentage>";
 	inherits: true;
-	initial-value: auto;
+	initial-value: 0.5em;
 }
 
 
+
+
+/*
+ * ==============================
+ * Sizes
+ * ==============================
+ */
+.wb-button.--biggest{
+	--wb-button--height: 56px;
+	--wb-button--padding: 24px;
+	--wb-button--fsize: 16px;
+}
+.wb-button.--big{
+	--wb-button--height: 48px;
+	--wb-button--padding: 20px;
+	--wb-button--fsize: 16px;
+}
+.wb-button{
+	--wb-button--height: 40px;
+	--wb-button--padding: 16px;
+	--wb-button--fsize: 14px;
+}
+.wb-button.--small{
+	--wb-button--height: 32px;
+	--wb-button--padding: 12px;
+	--wb-button--fsize: 12px;
+}
+.wb-button.--smallest{
+	--wb-button--height: 24px;
+	--wb-button--padding: 8px;
+	--wb-button--fsize: 10px;
+}
+
+
+
+
+/*
+ * ==============================
+ * Colors (with relevancy-normal)
+ * ==============================
+ */
+.wb-button[data-relevancy="normal"][data-intent="neutral"]{
+	--wb-button--bg: var(--wb--surface-color);
+	--wb-button--fg: var(--wb--on-surface-color);
+}
+.wb-button[data-relevancy="normal"][data-intent="positive"]{
+	--wb-button--bg: var(--wb--surface-color);
+	--wb-button--fg: var(--wb--positive-color);
+}
+.wb-button[data-relevancy="normal"][data-intent="negative"]{
+	--wb-button--bg: var(--wb--surface-color);
+	--wb-button--fg: var(--wb--negative-color);
+}
+
+/*
+ * ==============================
+ * Colors (with relevancy-main)
+ * ==============================
+ */
+.wb-button[data-relevancy="main"][data-intent="neutral"]{
+	--wb-button--bg: var(--wb--primary-color);
+	--wb-button--fg: var(--wb--on-primary-color);
+}
+.wb-button[data-relevancy="main"][data-intent="positive"]{
+	--wb-button--bg: var(--wb--positive-color);
+	--wb-button--fg: var(--wb--on-positive-color);
+}
+.wb-button[data-relevancy="main"][data-intent="negative"]{
+	--wb-button--bg: var(--wb--negative-color);
+	--wb-button--fg: var(--wb--on-negative-color);
+}
+
+
+
+
+
+
+
+
+
+/*
+ * ==============================
+ * Base
+ * ==============================
+ */
 .wb-button {
-	--var-fsize: var(--wb-button--fsize, 1em);
 	--var-width: var(--wb-button--width, auto);
-	--var-height: var(--wb-button--height, auto);
-	--var-padding-v: var(--wb-button--padding-v, calc(var(--var-height) / 8));
-	--var-padding-h: var(--wb-button--padding-h, var(--var-padding-v));
-	--var-bg: var(--wb-button--bg, transparent);
-	--var-bg--hover: var(--wb-button--bg--hover, rgba(0, 0, 0, 0.04));
-	--var-bg--active: var(--wb-button--bg--active, rgba(0, 0, 0, 0.08));
-	--var-fg: var(--wb-button--fg, #000000);
-	--var-fg--hover: var(--wb-button--fg--hover, var(--var-fg));
-	--var-border-radius: var(--wb-button--border-radius, 0);
-	--var-border-size: var(--wb-button--border-size, 0);
-	--var-border-color: var(--wb-button--border-color, transparent);
-	/*--var-loading-size: var(--wb-button--loading-size, 48px);*/
-	--var-loading-stroke: var(--wb-button--loading-stroke, 5px);
-	--var-loading-color: var(--wb-button--loading-color, var(--var-fg));
-	--var-gap: var(--wb-button--gap, 1em);
+	--var-height: var(--wb-button--height);
+	--var-padding-h: var(--wb-button--padding);
+	--var-fsize: var(--wb-button--fsize);
+
+	--wb--local-bg-color: var(--wb-button--bg, var(--wb--primary-color, transparent));
+	--wb--local-fg-color: var(--wb-button--fg, var(--wb--on-primary-color, #000000));
+
+	--var-border-radius: var(--wb-button--border-radius);
+	--var-border-size: var(--wb-button--border-size);
+	--var-border-color: var(--wb-button--border-color);
+
+	--var-gap: var(--wb-button--gap, calc(var(--var-padding-h) * 0.66));
 
 	display: flex;
 	flex-direction: row;
@@ -469,17 +558,44 @@ export default {
 	height: var(--var-height);
 	max-height: var(--var-height);
 
-	background: var(--var-bg);
+	background: var(--wb--local-bg-color);
 
-	padding: var(--var-padding-v) var(--var-padding-h);
-
-	/*font-size: var(--var-fsize);*/
+	padding: 0 var(--var-padding-h);
 
 	border-radius: var(--var-border-radius);
 
 	gap: var(--var-gap);
+
+	transition: background-color 0.15s ease;
 }
 
+
+
+
+/*
+ * ==============================
+ * States
+ * ==============================
+ */
+.wb-button:focus {
+	outline: 1px solid transparent;
+}
+.wb-button:not(:disabled):hover,
+.wb-button:not(:disabled):focus {
+	background-color: hsl(from var(--wb--local-bg-color) h s calc(l - 5));
+}
+.wb-button:not(:disabled):active {
+	background-color: hsl(from var(--wb--local-bg-color) h s calc(l - 15));
+}
+
+
+
+
+/*
+ * ==============================
+ * Alignment
+ * ==============================
+ */
 .wb-button[data-align="start"]{
 	justify-content: flex-start;
 }
@@ -490,23 +606,42 @@ export default {
 	justify-content: flex-end;
 }
 
-.wb-button:focus {
-	outline: 1px solid transparent;
-}
 
 
+
+/*
+ * ==============================
+ * Special states
+ * ==============================
+ */
 .wb-button.--unit-ratio {
-	--var-height: var(--wb-button--height);
+	/*--var-height: var(--wb-button--height);*/
 	--var-width: var(--wb-button--width, var(--var-height, auto));
-	padding: 0;
-	/*--var-padding-v: calc(var(--wb-button--padding-v) * 2);*/
+	/*padding: 0;*/
+}
 
+.wb-button.--fullwidth {
+	width: 100%;
+}
 
-	/*--var-padding-v: var(--wb-button--padding-v, 0.8em);*/
-	/*--var-padding-h: var(--wb-button--padding-h, var(--var-padding-v));*/
+.wb-button.--capsule {
+	--wb-button--border-radius: 1000px;
+	overflow: hidden;
+}
+
+.wb-button.--outline::after {
+	opacity: 1;
+	box-shadow: inset 0 0 0 var(--var-border-size) var(--var-border-color);
 }
 
 
+
+
+/*
+ * ==============================
+ * Background overlay
+ * ==============================
+ */
 .wb-button::after {
 	pointer-events: none;
 	content: '';
@@ -521,105 +656,85 @@ export default {
 
 	box-shadow: inset 0 0 0 calc(var(--var-border-size) * 0.5) transparent;
 
-	transition: opacity, background-color, box-shadow, 0.15s ease;
+	transition: opacity 0.15s ease;
 }
-
 .wb-button:not(:disabled):hover::after,
 .wb-button:not(:disabled):focus::after {
 	opacity: 1;
-	background-color: var(--var-bg--hover);
 }
-
 .wb-button:not(:disabled):active::after {
 	opacity: 1;
-	background-color: var(--var-bg--active);
 }
 
-.wb-button.--outline-interaction:not(:disabled):focus::after {
-	box-shadow: inset 0 0 0 var(--var-border-size) var(--var-border-color);
-}
 
+
+
+/*
+ * ==============================
+ * Disabled
+ * ==============================
+ */
 .wb-button:disabled {
 	cursor: default;
 	opacity: 0.5;
 }
 
+
+
+
+/*
+ * ==============================
+ * Parts
+ * ==============================
+ */
 .wb-button:disabled > .-icon,
 .wb-button:disabled > .-loading,
 .wb-button:disabled > .-text {
 	opacity: 0.7;
 }
 
-.wb-button.--fullwidth {
-	width: 100%;
-}
-
-.wb-button.--capsule {
-	--wb-button--border-radius: 1000px;
-	/*padding: var(--var-padding-v) calc(var(--var-padding-h) * 1.2);*/
-
-	/*--var-padding-v: var(--wb-button--padding-v, 0.8em);*/
-	/*--var-padding-h: var(--wb-button--padding-h, var(--var-padding-v));*/
-	overflow: hidden;
-}
-
-.wb-button.--round {
-	--wb-button--border-radius: 50%;
-	overflow: hidden;
-}
-
-.wb-button.--outline::after {
-	opacity: 1;
-	box-shadow: inset 0 0 0 var(--var-border-size) var(--var-border-color);
-}
 
 
+
+/*
+ * ==============================
+ * Loading
+ * ==============================
+ */
 .wb-button > .-loading {
-	--v-loading-spinner--size: calc(var(--var-height) - calc(var(--var-padding-v) * 2));
-	--v-loading-spinner--stroke-width: var(--var-loading-stroke);
-	--v-loading-spinner--color: var(--var-loading-color);
+	--wb-loading-spinner--size: var(--var-fsize);
+	--wb-loading-spinner--stroke-width: calc(var(--var-fsize) * 1);
+	--wb-loading-spinner--color: var(--wb--local-fg-color);
 }
 
 
+
+
+/*
+ * ==============================
+ * Icon
+ * ==============================
+ */
 .wb-button > .-icon {
-	/*font-size: calc(var(--var-fsize) + 2em);*/
-	/*color: var(--var-fg);*/
-	/*--wb-icon--fg: ;*/
-
-	--wb-icon--fg: var(--wb-button--icon--fg, var(--var-fg));
-	--wb-icon--bg: var(--wb-button--icon--bg, var(--var-bg));
-	--wb-icon--height: 100%;
-	--wb-icon--width: auto;
-	/*--wb-icon--font-size: calc(var(--var-fsize) + 0.5em);*/
-	--wb-icon--padding: calc( min( var(--var-padding-v), var(--var-padding-h) ) / 2 );
-
-	/*transition: color 0.15s ease;*/
-	transition: background-color, color, 0.15s ease;
-	/*text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);*/
-	/*z-index: 2;*/
-}
-.wb-button.--unit-ratio > .-icon{
-	--wb-icon--padding: calc(var(--wb-button--icon--padding) + var(--wb-button--padding-v));
-	/*--wb-icon--padding: min(var(--var-padding-v), var(--var-padding-h));*/
+	font-size: var(--var-fsize);
+	color: var(--wb--local-fg-color);
 }
 
-.wb-button:not(:disabled):hover > .-icon {
-	/*color: var(--var-fg--hover);*/
-	/*--wb-icon--fg: var(--wb-button--icon--fg--hover, var(--var-fg--hover));*/
-	/*--wb-icon--bg: var(--wb-button--icon--bg--hover, var(--var-bg--hover));*/
-}
-
-/*.wb-button.--italic > .-icon {*/
-/*	font-style: italic;*/
-/*}*/
 
 
+
+/*
+ * ==============================
+ * Image
+ * ==============================
+ */
 .wb-button > .-img{
-	height: var(--var-height);
-	width: var(--var-height);
 	max-height: var(--var-height);
-	max-width: var(--var-height);
+	height: var(--var-height);
 	min-height: var(--var-height);
+
+	max-width: var(--var-height);
+	width: var(--var-height);
 	min-width: var(--var-height);
 }
 .wb-button > .-img > .-fallback{
@@ -627,18 +742,19 @@ export default {
 	width: 100%;
 }
 
+
+
+
 /*
- * ----------------------------------------
+ * ==============================
  * Text
- * ----------------------------------------
+ * ==============================
  */
 .wb-button > .-text {
-	color: var(--var-fg);
-	/*font-family: 'Roboto', sans-serif;*/
-	font-weight: bold;
+	color: var(--wb--local-fg-color);
 	font-size: var(--var-fsize);
+	font-weight: 500;
 
-	/*text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);*/
 	letter-spacing: 0.05em;
 
 	transition: color 0.15s ease;
@@ -650,17 +766,12 @@ export default {
 	margin-inline-end: calc( calc( var(--var-height) / 2 ) - var(--var-padding-h) );
 }
 .wb-button.--bold > .-text {
-	/*font-family: 'Roboto', sans-serif;*/
-	font-weight: 500;
+	font-weight: 600;
 }
 .wb-button.--uppercase > .-text {
 	text-transform: uppercase;
 }
 .wb-button.--italic > .-text {
 	font-style: italic;
-}
-.wb-button:not(:disabled):focus > .-text,
-.wb-button:not(:disabled):hover > .-text {
-	color: var(--var-fg--hover);
 }
 </style>

@@ -2,9 +2,7 @@ import WbButton from "./components/wb-button.vue";
 import {WhiteboxMain, WhiteboxResets} from "./styles/styles.mjs";
 import WbIcon from "./components/wb-icon.vue";
 import WbLoadingSpinner from "./components/wb-loading-spinner.vue";
-import {config, defaultIconProvider} from "./configs.mjs";
-
-
+import {install} from "./configs.mjs";
 
 export {
 	WbButton,
@@ -12,7 +10,6 @@ export {
 	WbLoadingSpinner,
 	WhiteboxResets,
 	WhiteboxMain,
-	config,
-	defaultIconProvider,
+	install,
 }
 

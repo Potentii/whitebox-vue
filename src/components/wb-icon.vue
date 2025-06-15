@@ -4,11 +4,14 @@
 
 
 <script>
-import {defaultIconProvider} from "../index.mjs";
+
+import {mapState} from "pinia";
+import {useWhiteboxConfigsStore} from "../stores/whitebox-configs-store.mjs";
 
 /**
  * @typedef {'material-icons'|'material-symbols-outlined'|'material-symbols-rounded'|'material-symbols-sharp'} EWbIconProvider
  */
+
 
 
 export default {
@@ -28,6 +31,9 @@ export default {
 
 
 	computed: {
+
+		...mapState(useWhiteboxConfigsStore, ['getDefaultIconProvider']),
+
 		/**
 		 *
 		 * @returns {?EWbIconProvider}
@@ -35,7 +41,7 @@ export default {
 		iconProviderComputed(){
 			if(this.iconProvider)
 				return this.iconProvider;
-			return defaultIconProvider.value;
+			return this.getDefaultIconProvider;
 		}
 	}
 

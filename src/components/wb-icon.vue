@@ -4,7 +4,7 @@
 
 
 <script>
-import {defaultIconProvider} from "../configs.mjs";
+import {defaultIconProvider} from "../index.mjs";
 
 /**
  * @typedef {'material-icons'|'material-symbols-outlined'|'material-symbols-rounded'|'material-symbols-sharp'} EWbIconProvider

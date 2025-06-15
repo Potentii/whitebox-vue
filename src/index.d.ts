@@ -2,7 +2,7 @@ import WbButton from './components/wb-button';
 import WbIcon from "./components/wb-icon";
 import WbLoadingSpinner from "./components/wb-loading-spinner";
 import {WhiteboxResets, WhiteboxMain} from './styles/styles';
-import {config} from "./configs.mjs";
+import {config, defaultIconProvider} from "./configs.mjs";
 
 
 export {
@@ -12,4 +12,5 @@ export {
 	WhiteboxResets,
 	WhiteboxMain,
 	config,
+	defaultIconProvider,
 }

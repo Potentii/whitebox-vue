@@ -55,5 +55,6 @@ export default {
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
+	font-display: block;
 }
 </style>

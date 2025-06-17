@@ -14,10 +14,10 @@
 
 			'--unit-ratio': isUnitRatio,
 
-			'--biggest': !!sizeBiggest,
-			'--big': !!sizeBig,
-			'--small': !!sizeSmall,
-			'--smallest': !!sizeSmallest,
+			'--size-biggest': !!sizeBiggest,
+			'--size-big': !!sizeBig,
+			'--size-small': !!sizeSmall,
+			'--size-smallest': !!sizeSmallest,
 
 			'--is-button': type === 'button' && !to,
 			'--is-submit': type === 'submit',
@@ -409,7 +409,7 @@ export default {
 @property --wb-button--bg {
 	syntax: "<color>";
 	inherits: true;
-	initial-value: var(--wb--primary-color, transparent);
+	initial-value: var(--wb--primary-color, none);
 }
 
 @property --wb-button--fg {
@@ -417,7 +417,7 @@ export default {
 	inherits: true;
 	initial-value: var(--wb--on-primary-color, inherit);
 }
-@property --wb-button--fsize {
+@property --wb-button--font-size {
 	syntax: "<length-percentage>";
 	inherits: true;
 	initial-value: 1em;
@@ -426,7 +426,7 @@ export default {
 @property --wb-button--border-color{
 	syntax: "<color>";
 	inherits: true;
-	initial-value: transparent;
+	initial-value: none;
 }
 @property --wb-button--border-size{
 	syntax: "<length>";
@@ -453,30 +453,30 @@ export default {
  * Sizes
  * ==============================
  */
-.wb-button.--biggest{
+.wb-button.--size-biggest{
 	--wb-button--height: 56px;
 	--wb-button--padding: 24px;
-	--wb-button--fsize: 16px;
+	--wb-button--font-size: 16px;
 }
-.wb-button.--big{
+.wb-button.--size-big{
 	--wb-button--height: 48px;
 	--wb-button--padding: 20px;
-	--wb-button--fsize: 16px;
+	--wb-button--font-size: 16px;
 }
 .wb-button{
 	--wb-button--height: 40px;
 	--wb-button--padding: 16px;
-	--wb-button--fsize: 14px;
+	--wb-button--font-size: 14px;
 }
-.wb-button.--small{
+.wb-button.--size-small{
 	--wb-button--height: 32px;
 	--wb-button--padding: 12px;
-	--wb-button--fsize: 12px;
+	--wb-button--font-size: 12px;
 }
-.wb-button.--smallest{
+.wb-button.--size-smallest{
 	--wb-button--height: 24px;
 	--wb-button--padding: 8px;
-	--wb-button--fsize: 10px;
+	--wb-button--font-size: 10px;
 }
 
 
@@ -535,7 +535,7 @@ export default {
 	--var-width: var(--wb-button--width, auto);
 	--var-height: var(--wb-button--height);
 	--var-padding-h: var(--wb-button--padding);
-	--var-fsize: var(--wb-button--fsize);
+	--var-font-size: var(--wb-button--font-size);
 
 	--wb--local-bg-color: var(--wb-button--bg, var(--wb--primary-color, transparent));
 	--wb--local-fg-color: var(--wb-button--fg, var(--wb--on-primary-color, #000000));
@@ -702,8 +702,8 @@ export default {
  * ==============================
  */
 .wb-button > .-loading {
-	--wb-loading-spinner--size: var(--var-fsize);
-	--wb-loading-spinner--stroke-width: calc(var(--var-fsize) * 1);
+	--wb-loading-spinner--size: var(--var-font-size);
+	--wb-loading-spinner--stroke-width: calc(var(--var-font-size) * 1);
 	--wb-loading-spinner--color: var(--wb--local-fg-color);
 }
 
@@ -716,7 +716,7 @@ export default {
  * ==============================
  */
 .wb-button > .-icon {
-	font-size: var(--var-fsize);
+	font-size: var(--var-font-size);
 	color: var(--wb--local-fg-color);
 }
 
@@ -752,7 +752,7 @@ export default {
  */
 .wb-button > .-text {
 	color: var(--wb--local-fg-color);
-	font-size: var(--var-fsize);
+	font-size: var(--var-font-size);
 	font-weight: 500;
 
 	letter-spacing: 0.05em;

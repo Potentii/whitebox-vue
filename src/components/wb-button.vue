@@ -582,10 +582,10 @@ export default {
 }
 .wb-button:not(:disabled):hover,
 .wb-button:not(:disabled):focus {
-	background-color: hsl(from var(--wb--local-bg-color) h s calc(l - 5));
+	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 5)), hsl(from var(--wb--local-bg-color) h s calc(l + 5)));
 }
 .wb-button:not(:disabled):active {
-	background-color: hsl(from var(--wb--local-bg-color) h s calc(l - 15));
+	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 15)), hsl(from var(--wb--local-bg-color) h s calc(l + 15)));
 }
 
 

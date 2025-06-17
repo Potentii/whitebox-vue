@@ -60,12 +60,36 @@
 }
 
 
+
+
 @property --wb--surface-color {
 	syntax: "<color>";
 	inherits: true;
 	initial-value: none;
 }
 @property --wb--on-surface-color {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+
+@property --wb--surface-color-2 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+@property --wb--on-surface-color-2 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+
+@property --wb--surface-color-3 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+@property --wb--on-surface-color-3 {
 	syntax: "<color>";
 	inherits: true;
 	initial-value: none;
@@ -103,25 +127,23 @@
 
 
 
-.--wb--horizontal-separator {
-	width: 100%;
-	height: 1px;
-	background-color: rgba(from var(--wb--local-fg-color) r g b / 0.15);
-}
-.--wb--vertical-separator {
-	width: 1px;
-	height: 100%;
-	background-color: rgba(from var(--wb--local-fg-color) r g b / 0.15);
-}
-
-
-
+/*
+ * ==============================
+ * Flex
+ * ==============================
+ */
 .--wb--flex-space{
 	flex: 1 1 auto;
 }
 
 
 
+
+/*
+ * ==============================
+ * Pointer and select
+ * ==============================
+ */
 .--wb--label {
 	pointer-events: none;
 	user-select: none;
@@ -136,8 +158,11 @@
 
 
 
-
-
+/*
+ * ==============================
+ * Surface
+ * ==============================
+ */
 .--wb--surface{
 	--wb--local-bg-color: var(--wb--surface-color);
 	--wb--local-fg-color: var(--wb--on-surface-color);
@@ -146,14 +171,48 @@
 	color: var(--wb--local-fg-color);
 }
 .--wb--surface .--wb--surface{
-	--wb--local-bg-color: hsl(from var(--wb--surface-color) h s calc(l - 10));
+	--wb--local-bg-color: var(--wb--surface-color-2, light-dark(hsl(from var(--wb--surface-color) h s calc(l - 10)), hsl(from var(--wb--surface-color) h s calc(l + 10))));
+	--wb--local-fg-color: var(--wb--on-surface-color-2, var(--wb--on-surface-color));
 }
 .--wb--surface .--wb--surface .--wb--surface{
-	--wb--local-bg-color: hsl(from var(--wb--surface-color) h s calc(l - 0));
+	--wb--local-bg-color: var(--wb--surface-color-3, light-dark(hsl(from var(--wb--surface-color) h s calc(l + 10)), hsl(from var(--wb--surface-color) h s calc(l + 20))));
+	--wb--local-fg-color: var(--wb--on-surface-color-3, var(--wb--on-surface-color));
 }
 .--wb--surface .--wb--surface .--wb--surface .--wb--surface{
-	--wb--local-bg-color: hsl(from var(--wb--surface-color) h s calc(l - 25));
+	--wb--local-bg-color: light-dark(hsl(from var(--wb--surface-color-3) h s calc(l + 5)), hsl(from var(--wb--surface-color-3) h s calc(l + 5)));
+	box-shadow: 0 8px 8px -2px rgba(0, 0, 0, 0.1);
 }
+
+
+
+
+/*
+ * ==============================
+ * Separators
+ * ==============================
+ */
+.--wb--horizontal-separator {
+	display: flex;
+	width: 100%;
+	height: 1px;
+}
+.--wb--vertical-separator {
+	width: 1px;
+	height: 100%;
+}
+.--wb--horizontal-separator,
+.--wb--vertical-separator {
+	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l + 15)));
+}
+.--wb--surface .--wb--surface .--wb--surface .--wb--horizontal-separator,
+.--wb--surface .--wb--surface .--wb--surface .--wb--vertical-separator {
+	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l - 15)));
+}
+
+
+
+
+
 
 
 

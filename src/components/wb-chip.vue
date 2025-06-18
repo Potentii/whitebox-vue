@@ -1,6 +1,6 @@
 <template>
 	<span
-		class="wb-chip --wb--surface"
+		class="wb-chip"
 		:class="{
 			'--size-biggest': !!sizeBiggest,
 			'--size-big': !!sizeBig,
@@ -142,17 +142,17 @@ export default {
 @property --wb-chip--background {
 	syntax: "<color>";
 	inherits: true;
-	initial-value: var(--wb--local-bg-color);
+	initial-value: none;
 }
 @property --wb-chip--fg-color {
 	syntax: "<color>";
 	inherits: true;
-	initial-value: var(--wb--local-fg-color);
+	initial-value: none;
 }
 @property --wb-chip--icon--color {
 	syntax: "<color>";
 	inherits: true;
-	initial-value: var(--wb-chip--fg-color);
+	initial-value: none;
 }
 
 
@@ -200,7 +200,7 @@ export default {
 	--var-gap: var(--wb-chip--gap, calc(var(--wb-chip--padding) * 0.8));
 	--var-fg-color: var(--wb-chip--fg-color, var(--wb--local-fg-color));
 	--var-icon-color: var(--wb-chip--icon--color, var(--var-fg-color));
-	--var-background-color: var(--wb-chip--background, var(--wb--local-bg-color));
+	--var-bg-color: var(--wb-chip--background, color-mix(in hsl, var(--wb--local-bg-color-contrast) 7%, var(--wb--local-bg-color)));
 
 
 	user-select: text;
@@ -213,7 +213,9 @@ export default {
 
 	height: var(--wb-chip--height);
 
-	background: var(--var-background-color);
+	background: var(--var-bg-color);
+
+
 
 	border: var(--wb-chip--border-size) solid var(--wb-chip--border-color);
 	border-radius: var(--wb-chip--border-radius);

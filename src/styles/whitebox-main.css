@@ -95,6 +95,28 @@
 	initial-value: none;
 }
 
+@property --wb--surface-color-4 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+@property --wb--on-surface-color-4 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+
+@property --wb--surface-color-5 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+@property --wb--on-surface-color-5 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+
 
 
 
@@ -163,23 +185,60 @@
  * Surface
  * ==============================
  */
+*{
+	--wb--local-bg-color-contrast-perc: 100%;
+	--wb--local-bg-color-contrast: color-mix(in hsl, var(--wb--local-fg-color) var(--wb--local-bg-color-contrast-perc), var(--wb--local-bg-color));
+}
+.--wb--surface-1,
 .--wb--surface{
 	--wb--local-bg-color: var(--wb--surface-color);
 	--wb--local-fg-color: var(--wb--on-surface-color);
 
 	background-color: var(--wb--local-bg-color);
 	color: var(--wb--local-fg-color);
+
+
+	/*--wb--local-bg-color-last: hsl(0,0%,0%);*/
+	/*--wb--local-bg-color-rel: hsl(from var(--wb--local-bg-color) 0 0 l);*/
+	/*--wb--local-bg-color-rel: hsl(from color-mix(in hsl, var(--wb--local-bg-color) 80%, var(--wb--local-bg-color-last)) 0 0 l);*/
 }
+.--wb--surface-2,
 .--wb--surface .--wb--surface{
-	--wb--local-bg-color: var(--wb--surface-color-2, light-dark(hsl(from var(--wb--surface-color) h s calc(l - 10)), hsl(from var(--wb--surface-color) h s calc(l + 10))));
+	/*--wb--local-bg-color: var(--wb--surface-color-2, light-dark(hsl(from var(--wb--surface-color) h s calc(l - 10)), hsl(from var(--wb--surface-color) h s calc(l + 10))));*/
+	--wb--local-bg-color: var(--wb--surface-color-2, color-mix(in hsl, var(--wb--on-surface-color) 10%, var(--wb--surface-color)));
 	--wb--local-fg-color: var(--wb--on-surface-color-2, var(--wb--on-surface-color));
 }
+.--wb--surface-3,
 .--wb--surface .--wb--surface .--wb--surface{
-	--wb--local-bg-color: var(--wb--surface-color-3, light-dark(hsl(from var(--wb--surface-color) h s calc(l + 10)), hsl(from var(--wb--surface-color) h s calc(l + 20))));
+	/*--wb--local-bg-color: var(--wb--surface-color-3, light-dark(hsl(from var(--wb--surface-color) h s calc(l + 10)), hsl(from var(--wb--surface-color) h s calc(l + 20))));*/
+	/*--wb--local-fg-color: var(--wb--on-surface-color-3, var(--wb--on-surface-color));*/
+
+	--wb--local-bg-color: var(--wb--surface-color-3, color-mix(in hsl, var(--wb--on-surface-color) 15%, var(--wb--surface-color)));
 	--wb--local-fg-color: var(--wb--on-surface-color-3, var(--wb--on-surface-color));
 }
+.--wb--surface-4,
 .--wb--surface .--wb--surface .--wb--surface .--wb--surface{
-	--wb--local-bg-color: light-dark(hsl(from var(--wb--surface-color-3) h s calc(l + 5)), hsl(from var(--wb--surface-color-3) h s calc(l + 5)));
+	/*--wb--local-bg-color: var(--wb--surface-color-4, light-dark(hsl(from var(--wb--surface-color) h s calc(l + 10)), hsl(from var(--wb--surface-color) h s calc(l + 20))));*/
+	/*--wb--local-fg-color: var(--wb--on-surface-color-4, var(--wb--on-surface-color));*/
+
+	--wb--local-bg-color: var(--wb--surface-color-4, color-mix(in hsl, var(--wb--on-surface-color) 90%, var(--wb--surface-color)));
+	--wb--local-fg-color: var(--wb--on-surface-color-4, var(--wb--surface-color));
+}
+.--wb--surface-5,
+.--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--surface{
+	/*--wb--local-bg-color: var(--wb--surface-color-5, light-dark(hsl(from var(--wb--surface-color) h s calc(l + 10)), hsl(from var(--wb--surface-color) h s calc(l + 20))));*/
+	/*--wb--local-fg-color: var(--wb--on-surface-color-5, var(--wb--on-surface-color));*/
+
+	--wb--local-bg-color: var(--wb--surface-color-5, color-mix(in hsl, var(--wb--on-surface-color) 15%, var(--wb--surface-color)));
+	--wb--local-fg-color: var(--wb--on-surface-color-5, var(--wb--on-surface-color));
+}
+.--wb--surface-6,
+.--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--surface{
+	/*--wb--local-bg-color: light-dark(hsl(from var(--wb--surface-color-5) h s calc(l + 5)), hsl(from var(--wb--surface-color-5) h s calc(l + 5)));*/
+
+	--wb--local-bg-color: var(--wb--surface-color-5, color-mix(in hsl, var(--wb--on-surface-color) 90%, var(--wb--surface-color)));
+	--wb--local-fg-color: var(--wb--on-surface-color-5, var(--wb--surface-color));
+
 	box-shadow: 0 8px 8px -2px rgba(0, 0, 0, 0.1);
 }
 
@@ -202,12 +261,35 @@
 }
 .--wb--horizontal-separator,
 .--wb--vertical-separator {
-	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l + 15)));
+	/*background-color: color-mix(in hsl, var(--wb--local-fg-color) 20%, var(--wb--local-bg-color));*/
+	--wb--local-bg-color-contrast-perc: 10%;
+	background-color: var(--wb--local-bg-color-contrast);
 }
-.--wb--surface .--wb--surface .--wb--surface .--wb--horizontal-separator,
-.--wb--surface .--wb--surface .--wb--surface .--wb--vertical-separator {
-	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l - 15)));
-}
+
+
+/*.--wb--horizontal-separator,*/
+/*.--wb--vertical-separator {*/
+/*	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l + 15)));*/
+/*}*/
+/*.--wb--surface .--wb--surface .--wb--surface .--wb--horizontal-separator,*/
+/*.--wb--surface .--wb--surface .--wb--surface .--wb--vertical-separator {*/
+/*	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l - 15)));*/
+/*}*/
+/*.--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--horizontal-separator,*/
+/*.--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--vertical-separator {*/
+/*	!*background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l - 15)));*!*/
+/*	!*background-color: color-mix(in hsl, var(--wb--local-bg-color) 70%, white);*!*/
+/*	!*background-color: color-mix(in hsl, var(--wb--local-bg-color) 100%, var(--wb--local-bg-color-rel) 50%);*!*/
+/*	background-color: var(--wb--local-bg-color-last);*/
+/*	!*background-color: hsl(from var(--wb--local-bg-color-rel) h s calc(l + 10));*!*/
+/*	!*background-color: #d23;*!*/
+/*}*/
+
+/*.--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--horizontal-separator,*/
+/*.--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--surface .--wb--vertical-separator {*/
+/*	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 10)), hsl(from var(--wb--local-bg-color) h s calc(l - 15)));*/
+/*}*/
+
 
 
 

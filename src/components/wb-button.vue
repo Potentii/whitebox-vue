@@ -12,6 +12,9 @@
 
 			'--custom-slot': !!customSlot,
 
+			'--has-text': hasText,
+			'--has-icon': hasIcon,
+
 			'--unit-ratio': isUnitRatio,
 
 			'--size-biggest': !!sizeBiggest,
@@ -45,8 +48,7 @@
 
 			<wb-icon
 				class="-icon"
-				block-mode
-				v-if="contentItem == 'icon' && icon"
+				v-if="contentItem == 'icon' && hasIcon && ((!loading) || showIconOnLoadingButton)"
 				:icon-provider="iconProvider">{{ icon }}</wb-icon>
 
 
@@ -60,7 +62,7 @@
 
 			<span
 				class="-text"
-				v-if="contentItem == 'text' && text">
+				v-if="contentItem == 'text' && hasText">
 				{{ text }}
 			</span>
 
@@ -95,6 +97,8 @@
  */
 import WbIcon from "./wb-icon.vue";
 import WbLoadingSpinner from "./wb-loading-spinner.vue";
+import {mapState} from "pinia";
+import {useWhiteboxConfigsStore} from "../stores/whitebox-configs-store.mjs";
 
 /**
  * @typedef {'button'|'submit'} EVButtonType
@@ -307,6 +311,9 @@ export default {
 
 	computed: {
 
+		...mapState(useWhiteboxConfigsStore, ['showIconOnLoadingButton']),
+
+
 		/**
 		 * @returns {'RouterLink'|'button'}
 		 */
@@ -318,14 +325,14 @@ export default {
 		 * @returns {boolean}
 		 */
 		isOnlyIcon() {
-			return this.icon && !this.text && !this.customSlot && !this.loading;
+			return this.hasIcon && !this.hasText && !this.customSlot && !this.loading;
 		},
 
 		/**
 		 * @returns {boolean}
 		 */
 		isOnlyLoading() {
-			return this.loading && !this.text && !this.customSlot && !this.icon;
+			return this.loading && !this.hasText && !this.customSlot && !this.hasIcon;
 		},
 
 		/**
@@ -333,6 +340,20 @@ export default {
 		 */
 		isUnitRatio() {
 			return (this.isOnlyIcon || this.isOnlyLoading) && !(this.isOnlyIcon && this.isOnlyLoading);
+		},
+
+		/**
+		 * @returns {boolean}
+		 */
+		hasText(){
+			return !!this.text?.trim().length;
+		},
+
+		/**
+		 * @returns {boolean}
+		 */
+		hasIcon(){
+			return !!this.icon?.trim().length;
 		},
 
 		formId(){
@@ -488,15 +509,15 @@ export default {
  * ==============================
  */
 .wb-button[data-relevancy="normal"][data-intent="neutral"]{
-	--wb-button--bg: var(--wb--surface-color);
-	--wb-button--fg: var(--wb--on-surface-color);
+	--wb-button--bg: var(--wb--local-bg-color);
+	--wb-button--fg: var(--wb--local-fg-color);
 }
 .wb-button[data-relevancy="normal"][data-intent="positive"]{
-	--wb-button--bg: var(--wb--surface-color);
+	--wb-button--bg: var(--wb--local-bg-color);
 	--wb-button--fg: var(--wb--positive-color);
 }
 .wb-button[data-relevancy="normal"][data-intent="negative"]{
-	--wb-button--bg: var(--wb--surface-color);
+	--wb-button--bg: var(--wb--local-bg-color);
 	--wb-button--fg: var(--wb--negative-color);
 }
 
@@ -537,8 +558,8 @@ export default {
 	--var-padding-h: var(--wb-button--padding);
 	--var-font-size: var(--wb-button--font-size);
 
-	--wb--local-bg-color: var(--wb-button--bg, var(--wb--primary-color, transparent));
-	--wb--local-fg-color: var(--wb-button--fg, var(--wb--on-primary-color, #000000));
+	--var-bg-color: var(--wb-button--bg, var(--wb--primary-color, transparent));
+	--var-fg-color: var(--wb-button--fg, var(--wb--on-primary-color, #000000));
 
 	--var-border-radius: var(--wb-button--border-radius);
 	--var-border-size: var(--wb-button--border-size);
@@ -558,7 +579,7 @@ export default {
 	height: var(--var-height);
 	max-height: var(--var-height);
 
-	background: var(--wb--local-bg-color);
+	background: var(--var-bg-color);
 
 	padding: 0 var(--var-padding-h);
 
@@ -582,10 +603,12 @@ export default {
 }
 .wb-button:not(:disabled):hover,
 .wb-button:not(:disabled):focus {
-	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 5)), hsl(from var(--wb--local-bg-color) h s calc(l + 5)));
+	background-color: color-mix(in hsl, var(--wb--local-bg-color-contrast) 10%, var(--var-bg-color));
+	/*background-color: light-dark(hsl(from var(--var-bg-color) h s calc(l - 5)), hsl(from var(--var-bg-color) h s calc(l + 5)));*/
 }
 .wb-button:not(:disabled):active {
-	background-color: light-dark(hsl(from var(--wb--local-bg-color) h s calc(l - 15)), hsl(from var(--wb--local-bg-color) h s calc(l + 15)));
+	background-color: color-mix(in hsl, var(--wb--local-bg-color-contrast) 20%, var(--var-bg-color));
+	/*background-color: light-dark(hsl(from var(--var-bg-color) h s calc(l - 15)), hsl(from var(--var-bg-color) h s calc(l + 15)));*/
 }
 
 
@@ -615,9 +638,11 @@ export default {
  * ==============================
  */
 .wb-button.--unit-ratio {
-	/*--var-height: var(--wb-button--height);*/
-	--var-width: var(--wb-button--width, var(--var-height, auto));
-	/*padding: 0;*/
+	--var-width: var(--var-height, auto);
+}
+
+.wb-button:not(.--has-text):not(.--has-icon) {
+	padding: 0;
 }
 
 .wb-button.--fullwidth {
@@ -704,7 +729,7 @@ export default {
 .wb-button > .-loading {
 	--wb-loading-spinner--size: var(--var-font-size);
 	--wb-loading-spinner--stroke-width: calc(var(--var-font-size) * 1);
-	--wb-loading-spinner--color: var(--wb--local-fg-color);
+	--wb-loading-spinner--color: var(--var-fg-color);
 }
 
 
@@ -717,7 +742,7 @@ export default {
  */
 .wb-button > .-icon {
 	font-size: var(--var-font-size);
-	color: var(--wb--local-fg-color);
+	color: var(--var-fg-color);
 }
 
 
@@ -751,7 +776,7 @@ export default {
  * ==============================
  */
 .wb-button > .-text {
-	color: var(--wb--local-fg-color);
+	color: var(--var-fg-color);
 	font-size: var(--var-font-size);
 	font-weight: 500;
 

@@ -3,6 +3,9 @@ import WbIcon from "./components/wb-icon.vue";
 import WbChip from "./components/wb-chip.vue";
 import WbInput from "./components/wb-input.vue";
 import WbLoadingSpinner from "./components/wb-loading-spinner.vue";
+import WbShimmer from "./components/wb-shimmer.vue";
+import WbShimmerItem from "./components/wb-shimmer-item.vue";
+import WbThumb from "./components/wb-thumb.vue";
 
 import {WhiteboxMain, WhiteboxResets} from "./styles/styles.mjs";
 
@@ -20,6 +23,9 @@ export {
 	WbChip,
 	WbInput,
 	WbLoadingSpinner,
+	WbShimmer,
+	WbShimmerItem,
+	WbThumb,
 
 	WhiteboxResets,
 	WhiteboxMain,

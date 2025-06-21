@@ -1,9 +1,6 @@
 <template>
-<!--	<transition name="&#45;&#45;fade" :duration="200">-->
-		<div class="wb-shimmer">
-			<div class="-anim"></div>
-		</div>
-<!--	</transition>-->
+	<div class="wb-shimmer">
+	</div>
 </template>
 
 
@@ -21,10 +18,29 @@ export default {
 	initial-value: 1;
 }
 
+@property --wb-shimmer--color-1 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: inherit;
+}
+@property --wb-shimmer--color-2 {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: inherit;
+}
+
+@property --wb-shimmer--border-radius {
+	syntax: "<length-percentage>";
+	inherits: true;
+	initial-value: 8px;
+}
+
 
 .wb-shimmer {
-	--local--wb-shimmer--speed-multiplier: var(--wb-shimmer--speed-multiplier, 1);
-	--local--wb-shimmer--fadein: 200ms;
+	--var-color-1: var(--wb-shimmer--color-1, color-mix(in hsl, var(--wb--local-bg-color-contrast) 12%, var(--wb--local-bg-color)));
+	--var-color-2: var(--wb-shimmer--color-2, color-mix(in hsl, var(--wb--local-bg-color-contrast) 6%, var(--wb--local-bg-color)));
+	--var-wb-shimmer--speed-multiplier: var(--wb-shimmer--speed-multiplier, 1);
+	--var-wb-shimmer--fadein: 500ms;
 
 	user-select: none;
 	pointer-events: none;
@@ -32,16 +48,19 @@ export default {
 	width: 100%;
 	height: 100%;
 
-	background-color: hsl(from var(--bg) h s calc(l - 6));
+	background-color: var(--var-color-1);
+
+	border-radius: var(--wb-shimmer--border-radius);
 
 	overflow: hidden;
 
-	transition: opacity 0.2s ease;
+	animation: wb-shimmer--anim-fadein var(--var-wb-shimmer--fadein) ease forwards;
 }
 
 
-.wb-shimmer > .-anim{
-	opacity: 1;
+.wb-shimmer::after{
+	content: '';
+	/*opacity: 1;*/
 	position: absolute;
 	width: 100%;
 	height: 100%;
@@ -49,25 +68,26 @@ export default {
 	top: 0;
 	left: 0;
 
-	background-image: linear-gradient(to right, transparent, hsl(from var(--bg) h s calc(l + 2)), transparent);
+	background-image: linear-gradient(to right, transparent, var(--var-color-2), transparent);
 
-	animation: wb-shimmer--anim calc(0.7s * var(--local--wb-shimmer--speed-multiplier)) ease infinite;
+	animation: wb-shimmer--anim-loading calc(0.7s * var(--var-wb-shimmer--speed-multiplier)) ease infinite;
 }
 
-@keyframes wb-shimmer--anim {
+@keyframes wb-shimmer--anim-fadein {
+	0%{
+		opacity: 0;
+	}
+	100%{
+		opacity: 1;
+	}
+}
+
+@keyframes wb-shimmer--anim-loading {
 	0%{
 		transform: translateX(-100%);
-		/*background-image: linear-gradient(to right, #e6e6e6 8%, #f2f2f2 18%, #e6e6e6 33%);*/
 	}
 	100%{
 		transform: translateX(100%);
-		/*background-image: linear-gradient(to right, #e6e6e6 8%, #f2f2f2 18%, #e6e6e6 33%);*/
 	}
 }
-
-/*.wb-shimmer.--fade-enter-from,*/
-/*.wb-shimmer.--fade-enter-to{*/
-/*	opacity: 0;*/
-/*	!*background-color: rgba(0,0,0,0.06);*!*/
-/*}*/
 </style>

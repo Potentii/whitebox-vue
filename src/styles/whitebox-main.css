@@ -61,6 +61,18 @@
 
 
 
+@property --wb--input-color {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+@property --wb--on-input-color {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+
+
 
 @property --wb--surface-color {
 	syntax: "<color>";

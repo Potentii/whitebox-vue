@@ -26,6 +26,14 @@ export default {
 
 
 <style>
+@property --wb-shimmer-item--padding {
+	syntax: "<length-percentage>";
+	inherits: true;
+	initial-value: 0;
+}
+
+
+
 .wb-shimmer-item{
 	display: grid;
 
@@ -39,7 +47,7 @@ export default {
 
 	gap: 0.5em;
 
-	padding: 0.5em 1em;
+	padding: var(--wb-shimmer-item--padding);
 
 	overflow: hidden;
 }
@@ -54,20 +62,9 @@ export default {
 	grid-area: description;
 }
 
-
-
 .wb-shimmer-item > .-thumb{
 	height: 100%;
 	aspect-ratio: 1 / 1;
-	border-radius: var(--border-radius--small);
-}
-
-.wb-shimmer-item > .-title{
-	border-radius: var(--border-radius--small);
-}
-
-.wb-shimmer-item > .-description{
-	border-radius: var(--border-radius--small);
 }
 
 </style>

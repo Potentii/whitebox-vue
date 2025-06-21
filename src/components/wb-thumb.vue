@@ -1,5 +1,12 @@
 <template>
-	<div class="wb-thumb">
+	<div
+		class="wb-thumb"
+		:class="{
+			'--size-biggest': !!sizeBiggest,
+			'--size-big': !!sizeBig,
+			'--size-small': !!sizeSmall,
+			'--size-smallest': !!sizeSmallest,
+		}">
 		<wb-shimmer class="-loading" v-if="loading"></wb-shimmer>
 		<object class="-img" :data="src" v-else>
 			<img class="-fallback" :src="srcFallback"/>
@@ -30,7 +37,32 @@ export default {
 			type: Boolean,
 			required: false,
 			default: false,
-		}
+		},
+
+
+		sizeBiggest: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeBig: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeSmall: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeSmallest: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
 	},
 }
 </script>
@@ -45,7 +77,7 @@ export default {
 @property --wb-thumb--border-radius {
 	syntax: "<length-percentage>";
 	inherits: true;
-	initial-value: 0;
+	initial-value: 8px;
 }
 @property --wb-thumb--shadow {
 	syntax: "<length-percentage> <length-percentage> <length-percentage> <length-percentage> <color>";
@@ -53,15 +85,50 @@ export default {
 	initial-value: none;
 }
 
-.wb-thumb {
-	/*min-width: var(--wb-thumb--size);*/
-	/*min-height: var(--wb-thumb--size);*/
-	/*width: var(--wb-thumb--size);*/
-	/*height: var(--wb-thumb--size);*/
-	/*max-width: var(--wb-thumb--size);*/
-	/*max-height: var(--wb-thumb--size);*/
 
-	border-radius: var(--wb-thumb--border-radius, 0);
+
+
+/*
+ * ==============================
+ * Sizes
+ * ==============================
+ */
+.wb-thumb.--size-biggest{
+	--wb-thumb--height: 84px;
+	--wb-thumb--width: 84px;
+}
+.wb-thumb.--size-big{
+	--wb-thumb--height: 64px;
+	--wb-thumb--width: 64px;
+}
+.wb-thumb{
+	--wb-thumb--height: 48px;
+	--wb-thumb--width: 48px;
+}
+.wb-thumb.--size-small{
+	--wb-thumb--height: 32px;
+	--wb-thumb--width: 32px;
+}
+.wb-thumb.--size-smallest{
+	--wb-thumb--height: 24px;
+	--wb-thumb--width: 24px;
+}
+
+
+
+
+.wb-thumb {
+	--var-height: var(--wb-thumb--height);
+	--var-width: var(--wb-thumb--width);
+
+	min-width: var(--var-width);
+	min-height: var(--var-height);
+	width: var(--var-width);
+	height: var(--var-height);
+	max-width: var(--var-width);
+	max-height: var(--var-height);
+
+	border-radius: var(--wb-thumb--border-radius);
 
 	box-shadow: var(--wb-thumb--shadow, none);
 	overflow: hidden;

@@ -12,7 +12,7 @@
 				ref="input"
 				:type="type"
 				:required="required"
-				size="1"
+				:size="size"
 				:min="min"
 				:max="max"
 				:minlength="minLength"
@@ -20,8 +20,7 @@
 				:disabled="disabled"
 				@input="$emit('input', $event)"
 				:placeholder="placeholder"
-				v-model="value"
-			/>
+				v-model="value"/>
 
 			<slot name="end"></slot>
 
@@ -40,6 +39,10 @@
 
 <script>
 
+/**
+ * @typedef {'text'|'email'|'search'|'password'|'file'|'number'} WbInputType
+ */
+
 export default {
 
 	name: 'wb-input',
@@ -47,6 +50,9 @@ export default {
 
 	props: {
 
+		/**
+		 * @type {WbInputType}
+		 */
 		type: {
 			type: String,
 			required: true,
@@ -75,6 +81,11 @@ export default {
 			type: Boolean,
 			required: false,
 			default: false,
+		},
+
+		size: {
+			type: [Number, String],
+			required: false,
 		},
 
 		min: {
@@ -164,92 +175,107 @@ export default {
 
 
 <style>
-@property --wb-input--background {
-	syntax: "<color>";
-	inherits: true;
-	initial-value: #ffffff;
-}
-@property --wb-input--box-shadow {
-	syntax: "<length-percentage> <length-percentage> <length-percentage> <length-percentage> <color>";
-	inherits: true;
-	initial-value: 0 0 0 0 none;
-}
-@property --wb-input--input-color {
-	syntax: "<color>";
-	inherits: true;
-	initial-value: #000000;
-}
-@property --wb-input--font-size {
-	syntax: "<length-percentage>";
-	inherits: true;
-	initial-value: 1em;
-}
-/*@property --wb-input--line-color {*/
-/*	syntax: "<color>";*/
-/*	inherits: true;*/
-/*	initial-value: #000000;*/
-/*}*/
 @property --wb-input--height {
 	syntax: "<lenght-percentage>";
 	inherits: true;
 	initial-value: auto;
 }
-@property --wb-input--padding {
-	syntax: "<length-percentage> <lenght-percentage> <lenght-percentage> <lenght-percentage>";
+
+@property --wb-input--bg-color {
+	syntax: "<color>";
 	inherits: true;
-	initial-value: 1em;
+	/*initial-value: var(--wb--input-color);*/
+	initial-value: inherit;
 }
-@property --wb-input--input-padding {
-	syntax: "<length-percentage> <lenght-percentage> <lenght-percentage> <lenght-percentage>";
+@property --wb-input--fg-color {
+	syntax: "<color>";
+	inherits: true;
+	/*initial-value: var(--wb--on-input-color);*/
+	initial-value: inherit;
+}
+@property --wb-input--font-size {
+	syntax: "<length-percentage>";
+	inherits: true;
+	initial-value: 16px;
+}
+
+
+@property --wb-input--box-shadow {
+	syntax: "<length-percentage> <length-percentage> <length-percentage> <length-percentage> <color>";
+	inherits: true;
+	initial-value: 0 0 0 0 none;
+}
+
+@property --wb-input--border-size {
+	syntax: "<length-percentage>";
 	inherits: true;
 	initial-value: 0;
+}
+@property --wb-input--border-color {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
 }
 @property --wb-input--border-radius {
-	syntax: "<lenght-percentage>";
+	syntax: "<length-percentage>";
 	inherits: true;
-	initial-value: 0;
+	initial-value: 8px;
 }
+
+
+
 
 
 
 .wb-input{
+	/*--var-bg-color: var(--wb-input--bg-color, color-mix(in hsl, var(--wb--local-bg-color-contrast) 0%, var(--wb--local-bg-color)));*/
+	/*--var-bg-color: var(--wb-input--bg-color, color-mix(in hsl, var(--wb--local-bg-color-contrast) 80%, var(--wb--local-bg-color)));*/
+	/*--var-bg-color: var(--wb-input--bg-color, var(--wb--input-color, var(--wb--surface-color)));*/
+	/*--var-fg-color: var(--wb-input--fg-color, var(--wb--on-input-color, var(--wb--on-surface-color)));*/
+
+	--var-bg-color: var(--wb-input--bg-color, var(--wb--surface-color));
+	--var-fg-color: var(--wb-input--fg-color, var(--wb--on-surface-color));
+
 	cursor: text;
 
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
-	/*gap: 1em;*/
 
-
-	/*color: var(--wb-input--input-color);*/
-	/*overflow: hidden;*/
+	gap: 0.25em;
 }
 .wb-input > .-input-container{
-	flex: 1 0 auto;
+	flex: 0 0 auto;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 
-	gap: 0.3em;
-
+	gap: 0.5em;
 
 	height: var(--wb-input--height);
-	/*max-height: var(--wb-input--height);*/
-	padding: var(--wb-input--padding);
-	background: var(--wb-input--background);
-	border-radius: var(--wb-input--border-radius);
+
+	padding: 0 0.8em;
+
+	font-size: var(--wb-input--font-size);
+
+	background: var(--var-bg-color);
+	color: var(--var-fg-color);
+
 	box-shadow: var(--wb-input--box-shadow);
+	border-radius: var(--wb-input--border-radius);
 }
 .wb-input > .-input-container > input{
 	flex: 1 1 auto;
 
 	/*width: auto;*/
-	/*min-width: 10px;*/
+	/*min-width: 8em;*/
 
-	padding: var(--wb-input--input-padding);
-	background: var(--wb-input--background);
-	color: var(--wb-input--input-color);
+	/*font-size: 16px;*/
 	font-size: var(--wb-input--font-size);
+	/*padding: var(--wb-input--input-padding);*/
+	padding: 1em 0.5em;
+	/*background: var(--wb-input--bg-color);*/
+
 }
 /*.wb-input > .-input-container > .-line{*/
 /*	flex: 0 0 auto;*/

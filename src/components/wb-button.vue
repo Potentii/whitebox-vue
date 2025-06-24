@@ -520,33 +520,28 @@ export default {
  */
 .wb-button.--size-biggest{
 	--wb-button--height: 56px;
-	--wb-button--padding: 28px;
+	--wb-button--padding: 24px;
 	--wb-button--font-size: 16px;
-	/*--wb-button--gap: 18px;*/
 }
 .wb-button.--size-big{
 	--wb-button--height: 48px;
-	--wb-button--padding: 24px;
+	--wb-button--padding: 20px;
 	--wb-button--font-size: 16px;
-	/*--wb-button--gap: 16px;*/
 }
 .wb-button{
-	--wb-button--height: 32px;
-	--wb-button--padding: 14px;
+	--wb-button--height: 40px;
+	--wb-button--padding: 16px;
 	--wb-button--font-size: 14px;
-	/*--wb-button--gap: 14px;*/
 }
 .wb-button.--size-small{
-	--wb-button--height: 28px;
+	--wb-button--height: 32px;
 	--wb-button--padding: 12px;
 	--wb-button--font-size: 12px;
-	/*--wb-button--gap: 12px;*/
 }
 .wb-button.--size-smallest{
 	--wb-button--height: 24px;
-	--wb-button--padding: 10px;
+	--wb-button--padding: 8px;
 	--wb-button--font-size: 10px;
-	/*--wb-button--gap: 10px;*/
 }
 
 

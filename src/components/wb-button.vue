@@ -6,6 +6,7 @@
 			'--capsule': !!capsule,
 			'--outline': !!outline,
 			'--fullwidth': !!fullwidth,
+			'--box': !!box,
 			'--bold': !!bold,
 			'--italic': !!italic,
 			'--uppercase': !!uppercase,
@@ -39,37 +40,37 @@
 		:title="title"
 		:disabled="disabled">
 
-		<template v-for="contentItem in contentOrder">
+		<template v-for="contentItem in contentOrderComputed">
 			<wb-loading-spinner
 				class="-loading"
-				v-if="contentItem == 'loading' && loading">
+				v-if="contentItem === 'loading' && loading">
 			</wb-loading-spinner>
 
 
 			<wb-icon
 				class="-icon"
-				v-if="contentItem == 'icon' && hasIcon && ((!loading) || showIconOnLoadingButton)"
+				v-if="contentItem === 'icon' && hasIcon && ((!loading) || showIconOnLoadingButton)"
 				:icon-provider="iconProvider">{{ icon }}</wb-icon>
 
 
 			<object
 				class="-img"
 				:data="imageUrl"
-				v-if="contentItem == 'image' && imageUrl">
+				v-if="contentItem === 'image' && imageUrl">
 				<img class="-fallback" :src="fallbackImageUrl"/>
 			</object>
 
 
 			<span
 				class="-text"
-				v-if="contentItem == 'text' && hasText">
+				v-if="contentItem === 'text' && hasText">
 				{{ text }}
 			</span>
 
 			<div
 				:class="customSlotClass"
 				class="-slot"
-				v-if="contentItem == 'slot' && customSlot">
+				v-if="contentItem === 'slot' && customSlot">
 				<slot></slot>
 			</div>
 
@@ -82,46 +83,65 @@
 
 
 <script>
-
-/**
- * @typedef {'loading'|'icon'|'image'|'text'|'slot'} EVButtonContentOrderItem
- */
-/**
- * @typedef {'start'|'end'} EVButtonLoadingPosition
- */
-/**
- * @typedef {'start'|'end'} EVButtonIconPosition
- */
-/**
- * @typedef {'start'|'end'} EVButtonImagePosition
- */
 import WbIcon from "./wb-icon.vue";
 import WbLoadingSpinner from "./wb-loading-spinner.vue";
 import {mapState} from "pinia";
 import {useWhiteboxConfigsStore} from "../stores/whitebox-configs-store.mjs";
 
 /**
- * @typedef {'button'|'submit'} EVButtonType
+ * @typedef {'start'|'center'|'end'} EWbButtonAlignment
  */
+/**
+ * @typedef {'normal'|'secondary'|'main'} EWbButtonRelevancy
+ */
+/**
+ * @typedef {'neutral'|'positive'|'negative'} EWbButtonIntent
+ */
+/**
+ * @typedef {'loading'|'icon'|'image'|'text'|'slot'} EWbButtonContentOrderItem
+ */
+/**
+ * @typedef {'start'|'end'} EWbButtonIconPosition
+ */
+/**
+ * @typedef {'start'|'end'} EWbButtonLoadingPosition
+ */
+/**
+ * @typedef {'start'|'end'} EWbButtonIconPosition
+ */
+/**
+ * @typedef {'start'|'end'} EWbButtonImagePosition
+ */
+/**
+ * @typedef {'button'|'submit'} EWbButtonType
+ */
+
+
+
 export default {
 
 	name: 'wb-button',
+
 	components: {WbLoadingSpinner, WbIcon},
-
-
-	// components: {WbIcon, VLoadingSpinner},
-
 
 	props: {
 
 		/**
-		 * @type {EVButtonContentOrderItem[]}
+		 * @type {EWbButtonContentOrderItem[]}
 		 */
 		contentOrder: {
 			type: Array,
 			required: false,
-			default: ['loading', 'icon', 'image', 'text', 'slot'],
 			validator: value => value?.length && value?.every(item => ['loading', 'icon', 'image', 'text', 'slot'].includes(item)),
+		},
+
+		/**
+		 * @type {EWbButtonIconPosition}
+		 */
+		iconPosition: {
+			type: String,
+			required: false,
+			validator: value => ['start','end'].includes(value),
 		},
 
 
@@ -188,7 +208,7 @@ export default {
 
 
 		/**
-		 * @type {EVButtonType}
+		 * @type {EWbButtonType}
 		 */
 		type: {
 			type: String,
@@ -253,6 +273,12 @@ export default {
 			default: false
 		},
 
+		box: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
 		fullwidth: {
 			type: Boolean,
 			required: false,
@@ -276,17 +302,17 @@ export default {
 		},
 
 		/**
-		 * @type {'normal'|'main'}
+		 * @type {EWbButtonRelevancy}
 		 */
 		relevancy: {
 			type: String,
 			required: false,
 			default: 'normal',
-			validator: value => ['normal','main'].includes(value),
+			validator: value => ['normal','secondary','main'].includes(value),
 		},
 
 		/**
-		 * @type {'neutral'|'positive'|'negative'}
+		 * @type {EWbButtonIntent}
 		 */
 		intent: {
 			type: String,
@@ -297,7 +323,7 @@ export default {
 
 
 		/**
-		 * @type {'start'|'center'|'end'}
+		 * @type {EWbButtonAlignment}
 		 */
 		align: {
 			type: String,
@@ -356,6 +382,9 @@ export default {
 			return !!this.icon?.trim().length;
 		},
 
+		/**
+		 * @returns {?string}
+		 */
 		formId(){
 			if(this.form && typeof this.form == 'object'){
 				if(!this.form.id)
@@ -363,6 +392,21 @@ export default {
 				return this.form.id;
 			}
 			return this.form;
+		},
+
+		/**
+		 * @returns {EWbButtonContentOrderItem[]}
+		 */
+		contentOrderComputed(){
+			if(this.contentOrder?.length){
+				return this.contentOrder;
+			} else {
+				if(this.iconPosition === 'end'){
+					return ['loading', 'image', 'text', 'slot', 'icon'];
+				} else {
+					return ['loading', 'icon', 'image', 'text', 'slot'];
+				}
+			}
 		},
 
 	},
@@ -452,7 +496,7 @@ export default {
 @property --wb-button--border-size{
 	syntax: "<length>";
 	inherits: true;
-	initial-value: 0;
+	initial-value: none;
 }
 @property --wb-button--border-radius{
 	syntax: "<length-percentage>";
@@ -511,14 +555,38 @@ export default {
 .wb-button[data-relevancy="normal"][data-intent="neutral"]{
 	--wb-button--bg: var(--wb--local-bg-color);
 	--wb-button--fg: var(--wb--local-fg-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
 }
 .wb-button[data-relevancy="normal"][data-intent="positive"]{
 	--wb-button--bg: var(--wb--local-bg-color);
 	--wb-button--fg: var(--wb--positive-color);
+	--wb-button--border-color: var(--wb--positive-color);
 }
 .wb-button[data-relevancy="normal"][data-intent="negative"]{
 	--wb-button--bg: var(--wb--local-bg-color);
 	--wb-button--fg: var(--wb--negative-color);
+	--wb-button--border-color: var(--wb--negative-color);
+}
+
+/*
+ * ==============================
+ * Colors (with relevancy-secondary)
+ * ==============================
+ */
+.wb-button[data-relevancy="secondary"][data-intent="neutral"]{
+	--wb-button--bg: var(--wb--secondary-color);
+	--wb-button--fg: var(--wb--on-secondary-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
+}
+.wb-button[data-relevancy="secondary"][data-intent="positive"]{
+	--wb-button--bg: var(--wb--secondary-color);
+	--wb-button--fg: var(--wb--positive-color);
+	--wb-button--border-color: var(--wb--positive-color);
+}
+.wb-button[data-relevancy="secondary"][data-intent="negative"]{
+	--wb-button--bg: var(--wb--secondary-color);
+	--wb-button--fg: var(--wb--negative-color);
+	--wb-button--border-color: var(--wb--negative-color);
 }
 
 /*
@@ -529,14 +597,17 @@ export default {
 .wb-button[data-relevancy="main"][data-intent="neutral"]{
 	--wb-button--bg: var(--wb--primary-color);
 	--wb-button--fg: var(--wb--on-primary-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
 }
 .wb-button[data-relevancy="main"][data-intent="positive"]{
 	--wb-button--bg: var(--wb--positive-color);
 	--wb-button--fg: var(--wb--on-positive-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
 }
 .wb-button[data-relevancy="main"][data-intent="negative"]{
 	--wb-button--bg: var(--wb--negative-color);
 	--wb-button--fg: var(--wb--on-negative-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
 }
 
 
@@ -562,7 +633,6 @@ export default {
 	--var-fg-color: var(--wb-button--fg, var(--wb--on-primary-color, #000000));
 
 	--var-border-radius: var(--wb-button--border-radius);
-	--var-border-size: var(--wb-button--border-size);
 	--var-border-color: var(--wb-button--border-color);
 
 	--var-gap: var(--wb-button--gap, calc(var(--var-padding-h) * 0.66));
@@ -634,6 +704,27 @@ export default {
 
 /*
  * ==============================
+ * Outline
+ * ==============================
+ */
+.wb-button.--outline {
+	--var-border-size: var(--wb-button--border-size, 2pt);
+}
+/*.wb-button.--outline {*/
+/*	border: var(--var-border-size) solid var(--var-border-color);*/
+/*	!*box-shadow: inset 0 0 0 var(--var-border-size) var(--var-border-color);*!*/
+/*}*/
+.wb-button.--outline::after {
+	opacity: 1;
+	/*border: var(--var-border-size) solid var(--var-border-color);*/
+	box-shadow: inset 0 0 0 var(--var-border-size) var(--var-border-color);
+}
+
+
+
+
+/*
+ * ==============================
  * Special states
  * ==============================
  */
@@ -649,14 +740,13 @@ export default {
 	width: 100%;
 }
 
+.wb-button.--box {
+	--wb-button--border-radius: 0;
+}
+
 .wb-button.--capsule {
 	--wb-button--border-radius: 1000px;
 	overflow: hidden;
-}
-
-.wb-button.--outline::after {
-	opacity: 1;
-	box-shadow: inset 0 0 0 var(--var-border-size) var(--var-border-color);
 }
 
 
@@ -679,7 +769,7 @@ export default {
 
 	border-radius: var(--wb-button--border-radius);
 
-	box-shadow: inset 0 0 0 calc(var(--var-border-size) * 0.5) transparent;
+	box-shadow: inset 0 0 0 calc(var(--var-border-size) * 0.5) var(--var-border-color);
 
 	transition: opacity 0.15s ease;
 }

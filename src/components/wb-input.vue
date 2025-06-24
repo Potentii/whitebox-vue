@@ -7,8 +7,20 @@
 
 			<slot name="start"></slot>
 
+			<wb-tokens-input
+				class="-input -tokens"
+				ref="input"
+				:required="required"
+				:size="size"
+				:disabled="disabled"
+				v-if="type === 'tokens'"
+				v-model="value"
+				:placeholder="placeholder"
+				@input="$emit('input', $event)">
+			</wb-tokens-input>
+
 			<input
-				class="-input"
+				class="-input -native"
 				ref="input"
 				:type="type"
 				:required="required"
@@ -18,6 +30,7 @@
 				:minlength="minLength"
 				:maxlength="maxLength"
 				:disabled="disabled"
+				v-else
 				@input="$emit('input', $event)"
 				:placeholder="placeholder"
 				v-model="value"/>
@@ -38,14 +51,16 @@
 
 
 <script>
-
 /**
- * @typedef {'text'|'email'|'search'|'password'|'file'|'number'} WbInputType
+ * @typedef {'text'|'email'|'search'|'password'|'file'|'number'|'tokens'} WbInputType
  */
+
+import WbTokensInput from "./wb-tokens-input.vue";
 
 export default {
 
 	name: 'wb-input',
+	components: {WbTokensInput},
 
 
 	props: {
@@ -57,7 +72,7 @@ export default {
 			type: String,
 			required: true,
 			default: 'text',
-			validate: val => ['text','email','search','password','file','number'].includes(val),
+			validate: val => ['text','email','search','password','file','number','tokens'].includes(val),
 		},
 
 		placeholder: {
@@ -112,7 +127,15 @@ export default {
 		modelValue: {
 			type: [Number,String,Date],
 			required: false,
-		}
+		},
+
+		/**
+		 * @type {(text:string) => shouldCommit:boolean}
+		 */
+		onCommit: {
+			type: Function,
+			required: false,
+		},
 
 	},
 
@@ -250,11 +273,11 @@ export default {
 	flex-direction: row;
 	align-items: center;
 
-	gap: 0.5em;
+	gap: 1em;
 
 	height: var(--wb-input--height);
 
-	padding: 0 0.8em;
+	padding: 1em 1em;
 
 	font-size: var(--wb-input--font-size);
 
@@ -273,7 +296,7 @@ export default {
 	/*font-size: 16px;*/
 	font-size: var(--wb-input--font-size);
 	/*padding: var(--wb-input--input-padding);*/
-	padding: 1em 0.5em;
+	/*padding: 1em 0.5em;*/
 	/*background: var(--wb-input--bg-color);*/
 
 }

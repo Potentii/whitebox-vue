@@ -6,6 +6,7 @@ import WbLoadingSpinner from "./components/wb-loading-spinner";
 import WbShimmer from "./components/wb-shimmer";
 import WbShimmerItem from "./components/wb-shimmer-item";
 import WbThumb from "./components/wb-thumb";
+import WbTokensInput from "./components/wb-tokens-input";
 
 import {WhiteboxResets, WhiteboxMain} from './styles/styles';
 
@@ -24,6 +25,7 @@ export {
 	WbShimmer,
 	WbShimmerItem,
 	WbThumb,
+	WbTokensInput,
 
 	WhiteboxResets,
 	WhiteboxMain,

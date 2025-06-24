@@ -216,14 +216,22 @@
 	--wb--local-bg-color-contrast-perc: 100%;
 	--wb--local-bg-color-contrast: color-mix(in hsl, var(--wb--local-fg-color) var(--wb--local-bg-color-contrast-perc), var(--wb--local-bg-color));
 }
+
+.--wb--surface,
+.--wb--surface-1,
+.--wb--surface-2,
+.--wb--surface-3,
+.--wb--surface-4,
+.--wb--surface-5,
+.--wb--surface-6{
+	background-color: var(--wb--local-bg-color);
+	color: var(--wb--local-fg-color);
+}
+
 .--wb--surface-1,
 .--wb--surface{
 	--wb--local-bg-color: var(--wb--surface-color);
 	--wb--local-fg-color: var(--wb--on-surface-color);
-
-	background-color: var(--wb--local-bg-color);
-	color: var(--wb--local-fg-color);
-
 
 	/*--wb--local-bg-color-last: hsl(0,0%,0%);*/
 	/*--wb--local-bg-color-rel: hsl(from var(--wb--local-bg-color) 0 0 l);*/

@@ -1,39 +1,59 @@
 <template>
-	<div class="wb-input" @focus="focus" tabindex="0">
+	<div class="wb-input" @focus="focus" tabindex="0" :data-type="type">
 
 		<slot name="top"></slot>
 
-		<div class="-input-container">
+		<div class="-box">
 
 			<slot name="start"></slot>
 
-			<wb-tokens-input
-				class="-input -tokens"
-				ref="input"
-				:required="required"
-				:size="size"
-				:disabled="disabled"
-				v-if="type === 'tokens'"
-				v-model="value"
-				:placeholder="placeholder"
-				@input="$emit('input', $event)">
-			</wb-tokens-input>
+			<div class="-input-container">
 
-			<input
-				class="-input -native"
-				ref="input"
-				:type="type"
-				:required="required"
-				:size="size"
-				:min="min"
-				:max="max"
-				:minlength="minLength"
-				:maxlength="maxLength"
-				:disabled="disabled"
-				v-else
-				@input="$emit('input', $event)"
-				:placeholder="placeholder"
-				v-model="value"/>
+				<Transition name="--fade">
+					<label class="-label" v-if="label?.trim().length && (alwaysShowLabel || value?.trim?.().length)">{{ label }}</label>
+				</Transition>
+
+
+				<wb-tokens-input
+					class="-input -tokens"
+					ref="input"
+					v-if="type === 'tokens'"
+					:required="required"
+					:size="size"
+					:disabled="disabled"
+					:placeholder="placeholder"
+					v-model="value">
+				</wb-tokens-input>
+
+				<wb-radio-input-impl
+					class="-input -radio"
+					ref="input"
+					v-else-if="type === 'radio'"
+					:required="required"
+					:disabled="disabled"
+					:name="name"
+					:radioValue="radioValue"
+					:placeholder="placeholder"
+					v-model="value">
+				</wb-radio-input-impl>
+
+				<input
+					class="-input -native"
+					ref="input"
+					v-else
+					:type="type"
+					:required="required"
+					:size="size"
+					:min="min"
+					:max="max"
+					:minlength="minLength"
+					:maxlength="maxLength"
+					:disabled="disabled"
+					:placeholder="placeholder"
+					v-model="value"/>
+
+			</div>
+
 
 			<slot name="end"></slot>
 
@@ -52,15 +72,16 @@
 
 <script>
 /**
- * @typedef {'text'|'email'|'search'|'password'|'file'|'number'|'tokens'} WbInputType
+ * @typedef {'text'|'email'|'search'|'password'|'file'|'number'|'tokens'|'radio'|'checkbox'} WbInputType
  */
 
 import WbTokensInput from "./wb-tokens-input.vue";
+import WbRadioInputImpl from "./wb-radio-input-impl.vue";
 
 export default {
 
 	name: 'wb-input',
-	components: {WbTokensInput},
+	components: {WbRadioInputImpl, WbTokensInput},
 
 
 	props: {
@@ -72,12 +93,36 @@ export default {
 			type: String,
 			required: true,
 			default: 'text',
-			validate: val => ['text','email','search','password','file','number','tokens'].includes(val),
+			validate: val => ['text','email','search','password','file','number','tokens','radio','checkbox'].includes(val),
 		},
 
 		placeholder: {
 			type: String,
 			required: false,
+		},
+
+		name: {
+			type: String,
+			required: false,
+		},
+
+		/**
+		 * @type {?string}
+		 */
+		radioValue: {
+			type: String,
+			required: false,
+		},
+
+		label: {
+			type: String,
+			required: false,
+		},
+
+		alwaysShowLabel: {
+			type: Boolean,
+			required: false,
+			default: false,
 		},
 
 		disabled: {
@@ -125,7 +170,7 @@ export default {
 		},
 
 		modelValue: {
-			type: [Number,String,Date],
+			type: [Number,String,Date,Array,Boolean],
 			required: false,
 		},
 
@@ -146,6 +191,13 @@ export default {
 	],
 
 
+	// data(){
+	// 	return {
+	//
+	// 	};
+	// },
+
+
 	computed: {
 
 		value: {
@@ -156,15 +208,6 @@ export default {
 				this.$emit('update:modelValue', newVal);
 			}
 		},
-
-		// summary: {
-		// 	get(){
-		// 		return [];
-		// 	},
-		// 	set(newVal){
-		// 		// TODO
-		// 	}
-		// },
 
 	},
 
@@ -178,16 +221,31 @@ export default {
 
 	methods: {
 
-		focus(){
-			this.$refs.input.focus();
+		getMainInput(){
+			if(typeof this.$refs.input?.getMainInput === 'function')
+				return this.$refs.input.getMainInput();
+			else
+				return this.$refs.input;
 		},
+
+
+		focus(){
+			this.getMainInput()?.focus?.();
+		},
+
+
+		blur(){
+			this.getMainInput()?.blur?.();
+		},
+
 
 		/**
 		 *
 		 * @param {string} message
 		 */
 		setCustomValidity(message){
-			this.$refs.input.setCustomValidity(message);
+			this.getMainInput()?.setCustomValidity?.(message);
+			// this.$refs.input.setCustomValidity(message);
 		},
 
 	},
@@ -256,10 +314,17 @@ export default {
 	/*--var-bg-color: var(--wb-input--bg-color, var(--wb--input-color, var(--wb--surface-color)));*/
 	/*--var-fg-color: var(--wb-input--fg-color, var(--wb--on-input-color, var(--wb--on-surface-color)));*/
 
-	--var-bg-color: var(--wb-input--bg-color, var(--wb--surface-color));
-	--var-fg-color: var(--wb-input--fg-color, var(--wb--on-surface-color));
 
-	cursor: text;
+	/*background-color: color-mix(in hsl, var(--wb--local-bg-color-contrast) 10%, var(--var-bg-color));*/
+
+	--var-bg-color: var(--wb-input--bg-color, color-mix(in hsl, var(--wb--local-fg-color) 6%, var(--wb--local-bg-color)));
+	--var-fg-color: var(--wb-input--fg-color, var(--wb--local-fg-color));
+
+
+	/*--var-bg-color: hsl(from var(--wb--local-bg-color) h s calc(l + 10));*/
+
+	/*--var-bg-color: var(--wb--local-bg-color-contrast);*/
+
 
 	display: flex;
 	flex-direction: column;
@@ -267,7 +332,13 @@ export default {
 
 	gap: 0.25em;
 }
-.wb-input > .-input-container{
+.wb-input:not([data-type="radio"]){
+	cursor: text;
+}
+.wb-input[data-type="radio"]{
+	cursor: default;
+}
+.wb-input > .-box{
 	flex: 0 0 auto;
 	display: flex;
 	flex-direction: row;
@@ -277,33 +348,66 @@ export default {
 
 	height: var(--wb-input--height);
 
-	padding: 1em 1em;
+	padding: 1.25em 1.25em;
 
 	font-size: var(--wb-input--font-size);
 
-	background: var(--var-bg-color);
-	color: var(--var-fg-color);
+	--wb--local-bg-color: var(--var-bg-color);
+	--wb--local-fg-color: var(--var-fg-color);
+
+	background: var(--wb--local-bg-color);
+	color: var(--wb--local-fg-color);
 
 	box-shadow: var(--wb-input--box-shadow);
 	border-radius: var(--wb-input--border-radius);
 }
-.wb-input > .-input-container > input{
+.wb-input > .-box > .-input-container{
+	flex: 1 1 auto;
+
+	display: flex;
+	flex-direction: column;
+	/*align-items: center;*/
+	/*gap: 0.25em;*/
+}
+.wb-input > .-box > .-input-container > .-label{
+	position: absolute;
+	top: -1.4em;
+
+
+	opacity: 0.8;
+	font-weight: 400;
+	font-size: 0.6em;
+
+	transition: transform, opacity, 0.15s ease;
+}
+.wb-input > .-box > .-input-container > .-label.--fade-enter-from,
+.wb-input > .-box > .-input-container > .-label.--fade-enter-to{
+	opacity: 0;
+	transform: translateY(1em);
+}
+.wb-input > .-box > .-input-container > .-label.--fade-leave-from,
+.wb-input > .-box > .-input-container > .-label.--fade-leave-to{
+	opacity: 0;
+	transform: translateY(1em);
+}
+.wb-input > .-box > .-input-container > .-input{
 	flex: 1 1 auto;
 
 	/*width: auto;*/
 	/*min-width: 8em;*/
 
 	/*font-size: 16px;*/
-	font-size: var(--wb-input--font-size);
+	color: var(--wb--local-fg-color);
+	font-size: 1em;
 	/*padding: var(--wb-input--input-padding);*/
 	/*padding: 1em 0.5em;*/
 	/*background: var(--wb-input--bg-color);*/
 
 }
-/*.wb-input > .-input-container > .-line{*/
+/*.wb-input > .-box > .-box{*/
 /*	flex: 0 0 auto;*/
 
-/*	background: var(--wb-input--line-color);*/
+/*	background: var(--wb-input--box-color);*/
 /*	width: 100%;*/
 /*	height: 3pt;*/
 /*	min-height: 3pt;*/

@@ -92,7 +92,7 @@ import {useWhiteboxConfigsStore} from "../stores/whitebox-configs-store.mjs";
  * @typedef {'start'|'center'|'end'|'space-between'|'stretch'} EWbButtonAlignment
  */
 /**
- * @typedef {'normal'|'secondary'|'main'} EWbButtonRelevancy
+ * @typedef {'normal'|'secondary'|'tertiary'|'main'} EWbButtonRelevancy
  */
 /**
  * @typedef {'neutral'|'positive'|'negative'} EWbButtonIntent
@@ -308,7 +308,7 @@ export default {
 			type: String,
 			required: false,
 			default: 'normal',
-			validator: value => ['normal','secondary','main'].includes(value),
+			validator: value => ['normal','secondary','tertiary','main'].includes(value),
 		},
 
 		/**
@@ -587,6 +587,27 @@ export default {
 	--wb-button--bg: var(--wb--secondary-color);
 	--wb-button--fg: var(--wb--negative-color);
 	--wb-button--border-color: var(--wb--negative-color);
+}
+
+/*
+ * ==============================
+ * Colors (with relevancy-tertiary)
+ * ==============================
+ */
+.wb-button[data-relevancy="tertiary"][data-intent="neutral"]{
+	--wb-button--bg: var(--wb--tertiary-color);
+	--wb-button--fg: var(--wb--on-tertiary-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
+}
+.wb-button[data-relevancy="tertiary"][data-intent="positive"]{
+	--wb-button--bg: var(--wb--tertiary-color);
+	--wb-button--fg: var(--wb--positive-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
+}
+.wb-button[data-relevancy="tertiary"][data-intent="negative"]{
+	--wb-button--bg: var(--wb--tertiary-color);
+	--wb-button--fg: var(--wb--negative-color);
+	--wb-button--border-color: var(--wb--local-fg-color);
 }
 
 /*

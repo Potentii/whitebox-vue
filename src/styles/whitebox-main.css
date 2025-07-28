@@ -24,6 +24,18 @@
 }
 
 
+@property --wb--tertiary-color {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+@property --wb--on-tertiary-color {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: none;
+}
+
+
 @property --wb--positive-color {
 	syntax: "<color>";
 	inherits: true;

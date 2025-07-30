@@ -1,15 +1,15 @@
 <template>
-	<div class="wb-radio-input-impl">
+	<div class="wb-checkbox-input-impl">
 
 		<input
 			class="-input -native"
 			ref="input"
-			type="radio"
+			type="checkbox"
 			:id="randId"
 			:name="name"
 			:required="required"
 			:disabled="disabled"
-			:value="radioValue"
+			:value="checkboxValue"
 			v-show="false"
 			v-model="value"/>
 
@@ -19,8 +19,8 @@
 		<label class="-label" :for="randId">
 			<span class="-icon-container">
 				<Transition name="--fade">
-					<wb-icon class="-icon -checked" v-if="value === radioValue">radio_button_checked</wb-icon>
-					<wb-icon class="-icon -unchecked" v-else>radio_button_unchecked</wb-icon>
+					<wb-icon class="-icon -checked" v-if="isChecked">check_box</wb-icon>
+					<wb-icon class="-icon -unchecked" v-else>check_box_outline_blank</wb-icon>
 				</Transition>
 			</span>
 			<span class="-text" v-if="placeholder?.trim?.().length">{{ placeholder }}</span>
@@ -38,7 +38,7 @@ import WbIcon from "./wb-icon.vue";
 
 export default {
 
-	name: 'wb-radio-input-impl',
+	name: 'wb-checkbox-input-impl',
 
 
 	components: {WbIcon},
@@ -57,7 +57,7 @@ export default {
 		/**
 		 * @type {?*}
 		 */
-		radioValue: {
+		checkboxValue: {
 			required: false,
 		},
 
@@ -88,10 +88,10 @@ export default {
 		},
 
 		/**
-		 * @type {?string}
+		 * @type {?(boolean|string[])}
 		 */
 		modelValue: {
-			type: [String],
+			type: [Boolean, Array],
 			required: false
 		},
 
@@ -108,7 +108,7 @@ export default {
 
 	computed: {
 		/**
-		 * @return {?string}
+		 * @return {?(boolean|string[])}
 		 */
 		value: {
 			get() {
@@ -117,6 +117,20 @@ export default {
 			set(value) {
 				this.$emit('update:modelValue', value);
 			}
+		},
+
+
+		/**
+		 * @type {boolean}
+		 */
+		isChecked(){
+			if(typeof this.value === 'boolean'){
+				return this.value;
+			} else if(Array.isArray(this.value)){
+				return this.value.includes(this.checkboxValue);
+			}
+
+			return this.value === this.checkboxValue;
 		},
 
 	},
@@ -128,7 +142,7 @@ export default {
 
 
 	beforeMount() {
-		this.randId = 'wb-radio-input-impl-' + Math.floor(Math.random() * 10000);
+		this.randId = 'wb-checkbox-input-impl-' + Math.floor(Math.random() * 10000);
 	},
 
 
@@ -144,7 +158,7 @@ export default {
 
 
 <style>
-.wb-radio-input-impl {
+.wb-checkbox-input-impl {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -152,7 +166,7 @@ export default {
 	/*gap: 0.5em;*/
 }
 
-.wb-radio-input-impl > .-label {
+.wb-checkbox-input-impl > .-label {
 	cursor: pointer;
 
 	display: flex;
@@ -161,24 +175,24 @@ export default {
 	gap: 0.5em;
 }
 
-.wb-radio-input-impl > .-label > .-icon-container {
+.wb-checkbox-input-impl > .-label > .-icon-container {
 	display: flex;
 	/*width: 1em;*/
 }
-.wb-radio-input-impl > .-label > .-icon-container > .-icon {
+.wb-checkbox-input-impl > .-label > .-icon-container > .-icon {
 	font-size: 1em;
 }
-.wb-radio-input-impl > .-label > .-icon-container > .-icon.--fade-move,
-.wb-radio-input-impl > .-label > .-icon-container > .-icon.--fade-enter-active,
-.wb-radio-input-impl > .-label > .-icon-container > .-icon.--fade-leave-active {
+.wb-checkbox-input-impl > .-label > .-icon-container > .-icon.--fade-move,
+.wb-checkbox-input-impl > .-label > .-icon-container > .-icon.--fade-enter-active,
+.wb-checkbox-input-impl > .-label > .-icon-container > .-icon.--fade-leave-active {
 	transition: opacity, transform, 0.15s ease;
 }
-.wb-radio-input-impl > .-label > .-icon-container > .-icon.--fade-enter-from,
-.wb-radio-input-impl > .-label > .-icon-container > .-icon.--fade-leave-to {
+.wb-checkbox-input-impl > .-label > .-icon-container > .-icon.--fade-enter-from,
+.wb-checkbox-input-impl > .-label > .-icon-container > .-icon.--fade-leave-to {
 	opacity: 0;
 	transform: scale(0.95);
 }
-.wb-radio-input-impl > .-label > .-icon-container > .-icon.--fade-leave-active {
+.wb-checkbox-input-impl > .-label > .-icon-container > .-icon.--fade-leave-active {
 	position: absolute;
 }
 
@@ -186,12 +200,12 @@ export default {
 
 
 
-/*.wb-radio-input-impl > .-icon-container > .-icon.fade-leave-active {*/
+/*.wb-checkbox-input-impl > .-icon-container > .-icon.fade-leave-active {*/
 /*	position: absolute;*/
 /*}*/
 
 
-.wb-radio-input-impl > .-label > .-text {
+.wb-checkbox-input-impl > .-label > .-text {
 	font-size: 1em;
 }
 

@@ -8,7 +8,7 @@
 			'--size-smallest': !!sizeSmallest,
 		}">
 		<wb-shimmer class="-loading" v-if="loading"></wb-shimmer>
-		<object class="-img" :data="src" v-else>
+		<object class="-img" :data="fileUrlOrData" v-else>
 			<img class="-fallback" :src="srcFallback"/>
 		</object>
 	</div>
@@ -25,6 +25,10 @@ export default {
 	components: {WbShimmer},
 
 	props: {
+		file: {
+			type: File,
+			required: false,
+		},
 		src: {
 			type: String,
 			required: false,
@@ -63,6 +67,22 @@ export default {
 			required: false,
 			default: false
 		},
+	},
+
+
+
+	computed: {
+
+		/**
+		 *
+		 * @return {?string}
+		 */
+		fileUrlOrData(){
+			return this.file
+				? URL.createObjectURL(this.file)
+				: this.src;
+		}
+
 	},
 }
 </script>
@@ -137,9 +157,24 @@ export default {
 	width: 100%;
 	height: 100%;
 }
+
 .wb-thumb > .-img{
 	width: 100%;
 	height: 100%;
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: cover;
+}
+
+.wb-thumb > .-img img{
+
+	min-width: var(--var-width);
+	min-height: var(--var-height);
+	width: var(--var-width);
+	height: var(--var-height);
+	max-width: var(--var-width);
+	max-height: var(--var-height);
+
 	object-fit: cover;
 }
 </style>

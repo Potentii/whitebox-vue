@@ -10,7 +10,7 @@
 			<div class="-input-container">
 
 				<Transition name="--fade">
-					<label class="-label" v-if="label?.trim().length && (alwaysShowLabel || value?.trim?.().length)">{{ label }}</label>
+					<label class="-label" v-if="showLabel">{{ label }}</label>
 				</Transition>
 
 
@@ -19,8 +19,8 @@
 					ref="input"
 					v-if="type === 'tokens'"
 					:required="required"
-					:size="size"
 					:disabled="disabled"
+					:size="size"
 					:placeholder="placeholder"
 					v-model="value">
 				</wb-tokens-input>
@@ -32,10 +32,36 @@
 					:required="required"
 					:disabled="disabled"
 					:name="name"
-					:radioValue="radioValue"
+					:radio-value="radioValue"
 					:placeholder="placeholder"
 					v-model="value">
 				</wb-radio-input-impl>
+
+				<wb-checkbox-input-impl
+					class="-input -checkbox"
+					ref="input"
+					v-else-if="type === 'checkbox'"
+					:required="required"
+					:disabled="disabled"
+					:name="name"
+					:checkbox-value="checkboxValue"
+					:placeholder="placeholder"
+					v-model="value">
+				</wb-checkbox-input-impl>
+
+				<wb-file-input-impl
+					class="-input -file"
+					ref="input"
+					v-else-if="type === 'file'"
+					:required="required"
+					:disabled="disabled"
+					:name="name"
+					:multiple="multiple"
+					:accept="accept"
+					:capture="capture"
+					:placeholder="placeholder"
+					v-model="value">
+				</wb-file-input-impl>
 
 				<input
 					class="-input -native"
@@ -43,12 +69,13 @@
 					v-else
 					:type="type"
 					:required="required"
+					:disabled="disabled"
+					:name="name"
 					:size="size"
 					:min="min"
 					:max="max"
 					:minlength="minLength"
 					:maxlength="maxLength"
-					:disabled="disabled"
 					:placeholder="placeholder"
 					v-model="value"/>
 
@@ -77,11 +104,13 @@
 
 import WbTokensInput from "./wb-tokens-input.vue";
 import WbRadioInputImpl from "./wb-radio-input-impl.vue";
+import WbCheckboxInputImpl from "./wb-checkbox-input-impl.vue";
+import WbFileInputImpl from "./wb-file-input-impl.vue";
 
 export default {
 
 	name: 'wb-input',
-	components: {WbRadioInputImpl, WbTokensInput},
+	components: {WbFileInputImpl, WbCheckboxInputImpl, WbRadioInputImpl, WbTokensInput},
 
 
 	props: {
@@ -107,10 +136,16 @@ export default {
 		},
 
 		/**
-		 * @type {?string}
+		 * @type {?*}
 		 */
 		radioValue: {
-			type: String,
+			required: false,
+		},
+
+		/**
+		 * @type {?*}
+		 */
+		checkboxValue: {
 			required: false,
 		},
 
@@ -141,6 +176,28 @@ export default {
 			type: Boolean,
 			required: false,
 			default: false,
+		},
+
+		multiple: {
+			type: Boolean,
+			required: false,
+			default: false,
+		},
+
+		/**
+		 * @type {?(string|string[])}
+		 */
+		accept: {
+			type: [String, Array],
+			required: false,
+		},
+
+		/**
+		 * @type {?('user'|'environment')}
+		 */
+		capture: {
+			type: String,
+			required: false,
 		},
 
 		size: {
@@ -207,6 +264,30 @@ export default {
 			set(newVal){
 				this.$emit('update:modelValue', newVal);
 			}
+		},
+
+
+		/**
+		 *
+		 * @return {boolean}
+		 */
+		showLabel(){
+			const hasLabelText = !!this.label?.trim().length;
+
+			return hasLabelText && (this.alwaysShowLabel || this.hasValue);
+		},
+
+		/**
+		 *
+		 * @return {boolean}
+		 */
+		hasValue(){
+			if(typeof this.value === 'string')
+				return this.value?.length > 0;
+			else if(Array.isArray(this.value))
+				return this.value?.length > 0;
+			else
+				return this.value !== null && this.value !== undefined;
 		},
 
 	},
@@ -332,10 +413,14 @@ export default {
 
 	gap: 0.25em;
 }
-.wb-input:not([data-type="radio"]){
+.wb-input:not([data-type="radio"]),
+.wb-input:not([data-type="checkbox"]),
+.wb-input:not([data-type="file"]){
 	cursor: text;
 }
-.wb-input[data-type="radio"]{
+.wb-input[data-type="radio"],
+.wb-input[data-type="checkbox"],
+.wb-input[data-type="file"]{
 	cursor: default;
 }
 .wb-input > .-box{

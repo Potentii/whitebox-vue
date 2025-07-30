@@ -5,6 +5,7 @@ import WbInput from "./components/wb-input";
 import WbLoadingSpinner from "./components/wb-loading-spinner";
 import WbShimmer from "./components/wb-shimmer";
 import WbShimmerItem from "./components/wb-shimmer-item";
+import WbFile from "./components/wb-file";
 import WbThumb from "./components/wb-thumb";
 import WbTokensInput from "./components/wb-tokens-input";
 
@@ -24,6 +25,7 @@ export {
 	WbLoadingSpinner,
 	WbShimmer,
 	WbShimmerItem,
+	WbFile,
 	WbThumb,
 	WbTokensInput,
 

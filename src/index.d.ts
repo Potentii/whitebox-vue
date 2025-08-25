@@ -1,13 +1,13 @@
 import WbButton from './components/wb-button';
 import WbIcon from "./components/wb-icon";
 import WbChip from './components/wb-chip';
-import WbInput from "./components/wb-input";
+import WbInput from "./components/input/wb-input";
+import WbOption from "./components/input/option";
 import WbLoadingSpinner from "./components/wb-loading-spinner";
 import WbShimmer from "./components/wb-shimmer";
 import WbShimmerItem from "./components/wb-shimmer-item";
 import WbFile from "./components/wb-file";
 import WbThumb from "./components/wb-thumb";
-import WbTokensInput from "./components/wb-tokens-input";
 
 import {WhiteboxResets, WhiteboxMain} from './styles/styles';
 
@@ -22,12 +22,12 @@ export {
 	WbIcon,
 	WbChip,
 	WbInput,
+	WbOption,
 	WbLoadingSpinner,
 	WbShimmer,
 	WbShimmerItem,
 	WbFile,
 	WbThumb,
-	WbTokensInput,
 
 	WhiteboxResets,
 	WhiteboxMain,

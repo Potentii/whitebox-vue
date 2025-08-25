@@ -1,7 +1,6 @@
 <template>
 	<div
-		class="wb-tokens-input"
-		@focusout="onFocusOut"
+		class="wb-tokens-input-impl"
 		@keydown="onkeydown">
 
 
@@ -11,14 +10,16 @@
 				class="-fake-input"
 				tabindex="-1"
 				:data-fake-input-index="i"
-				@focusout="fakeInput_onFocusOut"
-				@input="fakeInput_onInput"
-				@keydown="fakeInput_onKeydown"
-				@click="fakeInput_onClick"
+				@input="fakeInput_onInput($event)"
+				@keydown="fakeInput_onKeydown($event)"
+				@keyup="fakeInput_onKeyup($event)"
+				@focus="fakeInput_onFocus($event)"
+				@blur="fakeInput_onBlur($event)"
 				type="text"/>
 
-			<span class="-token" :data-id="token.id" :data-token-index="i">
+			<span class="-token" :class="tokenSlotClass" :data-token-index="i">
 				<slot name="token" :token="token"></slot>
+				<template v-if="!$slots.token">{{ token }}</template>
 			</span>
 
 		</template>
@@ -27,26 +28,22 @@
 			class="-fake-input --last"
 			tabindex="-1"
 			:data-fake-input-index="tokens?.length || 0"
-			@focusout="fakeInput_onFocusOut"
-			@input="fakeInput_onInput"
-			@keydown="fakeInput_onKeydown"
-			@click="fakeInput_onClick"
+			@input="fakeInput_onInput($event)"
+			@keydown="fakeInput_onKeydown($event)"
+			@keyup="fakeInput_onKeyup($event)"
+			@focus="fakeInput_onFocus($event)"
+			@blur="fakeInput_onBlur($event)"
 			ref="lastFakeInput"
 			type="text"
-			:placeholder="placeholder"/>
+			:placeholder="!tokens?.length ? placeholder : undefined"/>
 
 	</div>
 </template>
 
 
 <script>
-import VNavigableSelectionItem from "./v-navigable-selection-item.vue";
-import VNavigableSelectionGroup from "./v-navigable-selection-group.vue";
-import VNavigableSelectionInput from "./v-navigable-selection-input.vue";
-import Selection from "./selection.mjs";
-import WbSuggestionsRequiredEvent from "./wb-suggestions-required-event.mjs";
-import {DomUtils, ProbeUtils} from "@potentii/browser-utils";
 
+import {ProbeUtils} from "@potentii/browser-utils";
 
 /**
  *
@@ -68,36 +65,34 @@ import {DomUtils, ProbeUtils} from "@potentii/browser-utils";
  */
 export default {
 
-	name: 'wb-tokens-input',
-
-
-	components: {VNavigableSelectionInput, VNavigableSelectionGroup, VNavigableSelectionItem},
+	name: 'wb-tokens-input-impl',
 
 
 	props: {
-
 		/**
-		 * @type {string}
+		 * @type {?string}
 		 */
-		popupParent: {
+		tokenSlotClass: {
 			type: String,
-			required: false,
-			default: 'body',
+			required: false
 		},
 
-		/**
-		 * @type {string}
-		 */
-		popupClass: {
-			type: String,
-			required: false,
-		},
 
 		// TODO
 		/**
 		 * @type {boolean}
 		 */
 		disabled: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		// TODO
+		/**
+		 * @type {boolean}
+		 */
+		required: {
 			type: Boolean,
 			required: false,
 			default: false
@@ -112,72 +107,13 @@ export default {
 			required: false
 		},
 
-		/**
-		 * @type {boolean}
-		 */
-		autofocus: {
-			type: Boolean,
-			required: false,
-			default: false,
-		},
 
 		/**
-		 * @type {boolean}
-		 */
-		autoclear: {
-			type: Boolean,
-			required: false,
-			default: false,
-		},
-
-		/**
-		 * @type {boolean}
-		 */
-		suggestionsEnabled: {
-			type: Boolean,
-			required: false,
-			default: false,
-		},
-
-		/**
-		 * @type {?((text: string) => boolean)}
-		 */
-		onValidateTextForSuggestions: {
-			type: Function,
-			required: false,
-		},
-
-		/**
-		 * @type {?((text: string) => (Suggestion[]|Promise<Suggestion[]>))}
-		 */
-		onSuggestionsRequired: {
-			type: Function,
-			required: false,
-		},
-
-		/**
-		 * @type {number}
-		 */
-		suggestionsRequiredDelay: {
-			type: Number,
-			required: false,
-			default: 0,
-		},
-
-		/**
-		 * @type {WbToken[]}
+		 * @type {?(*[])}
 		 */
 		modelValue: {
 			type: Array,
 			required: false
-		},
-
-		/**
-		 * @type {(text:string) => shouldCommit:boolean}
-		 */
-		onCommit: {
-			type: Function,
-			required: false,
 		},
 
 	},
@@ -185,41 +121,11 @@ export default {
 
 	data() {
 		return {
-
-			suggestionsControl: {
-				showPanel: false,
-				isLoading: false,
-				isUserNavigatingOnSuggestions: false,
-				/**
-				 * @type {Suggestion[]}
-				 */
-				suggestions: [],
-				/**
-				 * @deprecated
-				 * @type {?string}
-				 */
-				suggestionsQueryText: undefined,
-
-				/**
-				 * @type {?number}
-				 */
-				triggeredByFakeInputIndex: undefined,
-
-				/**
-				 * @type {Selection}
-				 */
-				selection: new Selection([], []),
-
-				closeSuggestionsPanel() {
-					this.isUserNavigatingOnSuggestions = false;
-					this.isLoading = false;
-					this.showPanel = false;
-					this.triggeredByFakeInputIndex = undefined;
-					this.selection.highlightedIds = [];
-					this.selection.selectedIds = [];
-				}
-			},
-		}
+			/**
+			 * @type {?number}
+			 */
+			lastFocusedFakeInputIndex: null,
+		};
 	},
 
 
@@ -241,31 +147,55 @@ export default {
 
 	emits: [
 		'update:modelValue',
-		'suggestionChosen'
+		'input',
+		'keydown',
+		'keyup',
 	],
-
-
-	mounted() {
-		if (this.autofocus)
-			this.focus();
-		if (this.autoclear)
-			this.clear();
-	},
 
 
 	methods: {
 
-		focus() {
-			if(this.$refs.lastFakeInput){
-				this.$refs.lastFakeInput.focus();
-			} else {
-				this.$el?.focus();
-			}
+		getMainInput() {
+			return this.$refs.lastFakeInput;
 		},
 
-		blur() {
-			this.$el?.blur();
+
+		/**
+		 *
+		 * @param {?*} value
+		 */
+		onSelectedFromDatalist(value) {
+			let newTokenIndex = this.lastFocusedFakeInputIndex === null || this.lastFocusedFakeInputIndex === undefined
+				? this.tokens.length
+				: this.lastFocusedFakeInputIndex;
+
+			console.log('newTokenIndex', newTokenIndex);
+
+			let fakeInput = this.$el.querySelector(`.-fake-input[data-fake-input-index="${newTokenIndex}"]`);
+			if (fakeInput) {
+				fakeInput.value = '';
+				this.updateFakeInputSize(fakeInput);
+			}
+
+			// *Adding the selected suggestion on the input as a new token:
+			if (!this.tokens) {
+				this.tokens = [value]
+			} else {
+				this.tokens.splice(newTokenIndex, 0, value);
+			}
+
+
+			setTimeout(() => {
+				let nextFakeInput = this.$el.querySelector(`.-fake-input[data-fake-input-index="${newTokenIndex + 1}"]`);
+				if (nextFakeInput) {
+					// nextFakeInput.value = '';
+					// nextFakeInput.focus();
+					this.focusAndSetCaretOnInput(nextFakeInput, 'start');
+				}
+			}, 0);
+
 		},
+
 
 		clear() {
 			this.tokens = [];
@@ -276,24 +206,26 @@ export default {
 		 * @param {InputEvent} e
 		 */
 		fakeInput_onInput(e) {
-			const textRect = ProbeUtils.probeInputValueRect(e.target);
-			const newInputSize = Math.ceil(textRect.widthAbs) + 2 + 'px';
-			e.target.style.setProperty('--var-width', newInputSize);
-
-			this.tryShowSuggestionPanelForFakeInput(e.target, true, false);
+			this.$emit('input', e);
+			this.updateFakeInputSize(e.target);
 		},
 
 		/**
-		 * @param {MouseEvent} e
+		 *
+		 * @param {HTMLInputElement} fakeInput
 		 */
-		fakeInput_onClick(e) {
-			this.tryShowSuggestionPanelForFakeInput(e.target, false, false);
+		updateFakeInputSize(fakeInput){
+			const textRect = ProbeUtils.probeInputValueRect(fakeInput);
+			const newInputSize = Math.ceil(textRect.widthAbs) + 2 + 'px';
+			fakeInput.style.setProperty('--var-width', newInputSize);
 		},
+
 
 		/**
 		 * @param {KeyboardEvent} e
 		 */
 		fakeInput_onKeydown(e) {
+			this.$emit('keydown', e);
 
 			// console.log(e.key)
 			switch (e.key) {
@@ -351,15 +283,15 @@ export default {
 					e.preventDefault();
 					break;
 				}
-				case 'ArrowUp': {
-					e.preventDefault();
-					break;
-				}
-				case 'ArrowDown': {
-					e.preventDefault();
-					this.tryShowSuggestionPanelForFakeInput(e.target, false, true);
-					break;
-				}
+				// case 'ArrowUp': {
+				// 	e.preventDefault();
+				// 	break;
+				// }
+				// case 'ArrowDown': {
+				// 	e.preventDefault();
+				// 	this.tryShowSuggestionPanelForFakeInput(e.target, false, true);
+				// 	break;
+				// }
 				case 'ArrowLeft':
 				case 'ArrowRight': {
 					const selectionRange = [e.target.selectionStart, e.target.selectionEnd];
@@ -407,6 +339,35 @@ export default {
 			}
 		},
 
+
+		/**
+		 *
+		 * @param {KeyboardEvent} e
+		 */
+		fakeInput_onKeyup(e) {
+			this.$emit('keyup', e);
+		},
+
+		/**
+		 * @param {FocusEvent} e
+		 */
+		fakeInput_onFocus(e) {
+			setTimeout(() => {
+				this.lastFocusedFakeInputIndex = Number(e.target.dataset.fakeInputIndex);
+				console.log('focus-index', this.lastFocusedFakeInputIndex)
+			}, 0)
+			// console.log(e.target.dataset)
+
+		},
+
+		/**
+		 * @param {FocusEvent} e
+		 */
+		fakeInput_onBlur(e) {
+			// this.lastFocusedFakeInputIndex = null;
+		},
+
+
 		/**
 		 *
 		 * @param {HTMLInputElement} inputEl
@@ -438,70 +399,70 @@ export default {
 		},
 
 
-		/**
-		 * @param {FocusEvent} e
-		 */
-		onFocusOut(e) {
-			if (this.$refs.$suggestionsSelection?.$el && e.relatedTarget != this.$refs.$suggestionsSelection.$el)
-				this.$nextTick(() => {
-					this.suggestionsControl.closeSuggestionsPanel();
-				});
-		},
+		// /**
+		//  * @param {FocusEvent} e
+		//  */
+		// onFocusOut(e) {
+		// 	if (this.$refs.$suggestionsSelection?.$el && e.relatedTarget != this.$refs.$suggestionsSelection.$el)
+		// 		this.$nextTick(() => {
+		// 			this.suggestionsControl.closeSuggestionsPanel();
+		// 		});
+		// },
 
-		/**
-		 * @param {FocusEvent} e
-		 */
-		fakeInput_onFocusOut(e) {
-			if (this.$refs.$suggestionsSelection?.$el && e.relatedTarget != this.$refs.$suggestionsSelection.$el && (!e.relatedTarget || !DomUtils.getParentUsingPredicate(e.relatedTarget, $el => $el == this.$refs.$suggestionsSelection)))
-				this.$nextTick(() => {
-					this.suggestionsControl.closeSuggestionsPanel();
-				});
-		},
+		// /**
+		//  * @param {FocusEvent} e
+		//  */
+		// fakeInput_onFocusOut(e) {
+		// 	if (this.$refs.$suggestionsSelection?.$el && e.relatedTarget != this.$refs.$suggestionsSelection.$el && (!e.relatedTarget || !DomUtils.getParentUsingPredicate(e.relatedTarget, $el => $el == this.$refs.$suggestionsSelection)))
+		// 		this.$nextTick(() => {
+		// 			this.suggestionsControl.closeSuggestionsPanel();
+		// 		});
+		// },
 
 
-		/**
-		 *
-		 * @param {HTMLInputElement} fakeInputEl
-		 * @param {boolean} refreshSuggestions
-		 * @param {boolean} focusOnFirstSuggestion
-		 * @return {Promise<void>}
-		 */
-		async tryShowSuggestionPanelForFakeInput(fakeInputEl, refreshSuggestions, focusOnFirstSuggestion) {
-			try {
-				if (!this.suggestionsEnabled) {
-					this.suggestionsControl.closeSuggestionsPanel();
-					return;
-				}
-
-				const text = fakeInputEl.value;
-
-				if (typeof (this.onValidateTextForSuggestions) == 'function' && !this.onValidateTextForSuggestions(text)) {
-					this.suggestionsControl.closeSuggestionsPanel();
-					return;
-				}
-
-				const fakeInputIndex = Number(fakeInputEl.dataset.fakeInputIndex);
-
-				this.suggestionsControl.isLoading = false;
-				this.suggestionsControl.showPanel = true;
-				this.suggestionsControl.triggeredByFakeInputIndex = fakeInputIndex;
-
-				if (refreshSuggestions && typeof (this.onSuggestionsRequired) == 'function') {
-					this.suggestionsControl.isLoading = true;
-					const suggestions = await this.onSuggestionsRequired(new WbSuggestionsRequiredEvent(text));
-					this.suggestionsControl.suggestions = suggestions || [];
-				}
-
-				if (this.suggestionsControl.suggestions.length && focusOnFirstSuggestion)
-					this.$refs.$suggestionsSelection.focus();
-
-			} catch (err) {
-				console.error(`ERR SHOWING SUGGESTIONS: `, err);
-				//TODO set error on suggestions panel summary
-			} finally {
-				this.suggestionsControl.isLoading = false;
-			}
-		},
+		// /**
+		//  *
+		//  * @param {HTMLInputElement} fakeInputEl
+		//  * @param {boolean} refreshSuggestions
+		//  * @param {boolean} focusOnFirstSuggestion
+		//  * @return {Promise<void>}
+		//  */
+		// async tryShowSuggestionPanelForFakeInput(fakeInputEl, refreshSuggestions, focusOnFirstSuggestion) {
+		// 	try {
+		// 		if (!this.suggestionsEnabled) {
+		// 			this.suggestionsControl.closeSuggestionsPanel();
+		// 			return;
+		// 		}
+		//
+		// 		const text = fakeInputEl.value;
+		//
+		// 		if (typeof (this.onValidateTextForSuggestions) == 'function' && !this.onValidateTextForSuggestions(text)) {
+		// 			this.suggestionsControl.closeSuggestionsPanel();
+		// 			return;
+		// 		}
+		//
+		// 		const fakeInputIndex = Number(fakeInputEl.dataset.fakeInputIndex);
+		//
+		// 		this.suggestionsControl.isLoading = false;
+		// 		this.suggestionsControl.showPanel = true;
+		// 		this.suggestionsControl.triggeredByFakeInputIndex = fakeInputIndex;
+		//
+		// 		if (refreshSuggestions && typeof (this.onSuggestionsRequired) == 'function') {
+		// 			this.suggestionsControl.isLoading = true;
+		// 			const suggestions = await this.onSuggestionsRequired(new WbSuggestionsRequiredEvent(text));
+		// 			this.suggestionsControl.suggestions = suggestions || [];
+		// 		}
+		//
+		// 		if (this.suggestionsControl.suggestions.length && focusOnFirstSuggestion)
+		// 			this.$refs.$suggestionsSelection.focus();
+		//
+		// 	} catch (err) {
+		// 		console.error(`ERR SHOWING SUGGESTIONS: `, err);
+		// 		//TODO set error on suggestions panel summary
+		// 	} finally {
+		// 		this.suggestionsControl.isLoading = false;
+		// 	}
+		// },
 
 
 		/**
@@ -522,33 +483,39 @@ export default {
 
 
 <style>
-.wb-tokens-input {
+.wb-tokens-input-impl {
 	flex: 1 1 auto;
 
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 
+	flex-wrap: wrap;
+
+	/*column-gap: 0.2em;*/
+	row-gap: 0.5em;
 
 
 }
 
-.wb-tokens-input > .-fake-input {
+.wb-tokens-input-impl > .-fake-input {
 	flex: 0 0 auto;
 
-
 	font-size: 1em;
-	width: 1ch;
-	/*min-width: 1ch;*/
+	width: var(--var-width, 2px);
+	min-width: 2px;
 	outline: none;
 	border: none;
 }
+.wb-tokens-input-impl > .-fake-input{
 
-.wb-tokens-input > .-fake-input.--last {
+}
+
+.wb-tokens-input-impl > .-fake-input.--last {
 	flex: 1 1 auto;
 }
 
-.wb-tokens-input > .-token {
+.wb-tokens-input-impl > .-token {
 	user-select: none;
 	/*display: inline-block;*/
 	display: flex;
@@ -559,7 +526,7 @@ export default {
 	/*border-radius: 5em;*/
 }
 
-.wb-tokens-input > .-token + .-token {
+.wb-tokens-input-impl > .-token + .-token {
 	/*margin-left: 0.2em;*/
 }
 

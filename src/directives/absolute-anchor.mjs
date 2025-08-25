@@ -4,11 +4,11 @@
 import {Vector2} from "@potentii/geometry-utils";
 import {DomUtils} from "@potentii/browser-utils";
 
-export default class AbsoluteAnchor {
+export const AbsoluteAnchor = {
 
-    static install(app, options) {
-        app.directive('absolute-anchor', new AbsoluteAnchor());
-    }
+    // static install(app, options) {
+    //     app.directive('absolute-anchor', new AbsoluteAnchor());
+    // }
 
 
     // // called before bound element's attributes
@@ -43,7 +43,7 @@ export default class AbsoluteAnchor {
 
         const update = !!binding.value.update;
 
-        const commonParent = AbsoluteAnchor.getCommonParent(el, $to);
+        const commonParent = this.getCommonParent(el, $to);
 
 
 
@@ -59,7 +59,7 @@ export default class AbsoluteAnchor {
         el.style.top = offset.y + 'px';
         el.style.width = width + 'px';
 
-    }
+    },
 
 
     /**
@@ -68,7 +68,7 @@ export default class AbsoluteAnchor {
      * @param {boolean} [skipFirst]
      * @return {Set<HTMLElement>}
      */
-    static getBackwardsLineageSet(el, skipFirst = false){
+    getBackwardsLineageSet(el, skipFirst = false){
         const lineageSet = new Set();
         let currEl = skipFirst ? el?.parentElement : el;
         if(!currEl)
@@ -78,7 +78,7 @@ export default class AbsoluteAnchor {
         } while (!!(currEl = currEl.parentElement));
 
         return lineageSet;
-    }
+    },
 
 
     /**
@@ -87,7 +87,7 @@ export default class AbsoluteAnchor {
      * @param {HTMLElement} el2
      * @return {?HTMLElement}
      */
-    static getCommonParent(el1, el2){
+    getCommonParent(el1, el2){
         if(!el1 || !el2)
             return null;
         if(!el1 == !el2)
@@ -97,9 +97,9 @@ export default class AbsoluteAnchor {
         if(el2 == el1.parentElement)
             return el2;
 
-        const el1Parents = AbsoluteAnchor.getBackwardsLineageSet(el1, false);
+        const el1Parents = this.getBackwardsLineageSet(el1, false);
         return DomUtils.getParentUsingPredicate(el2, el2Parent => el1Parents.has(el2Parent), false);
-    }
+    },
 
 
     // // called before the parent component is updated
@@ -111,16 +111,16 @@ export default class AbsoluteAnchor {
     // all of its children have updated
     updated(el, binding, vnode, prevVnode) {
 
-    }
+    },
 
     // called before the parent component is unmounted
     beforeUnmount(el, binding, vnode, prevVnode) {
 
-    }
+    },
 
     // called when the parent component is unmounted
     unmounted(el, binding, vnode, prevVnode) {
 
-    }
+    },
 
 }

@@ -1,5 +1,5 @@
 <template>
-	<div class="wb-input" @focus="focus" tabindex="0" :data-type="type">
+	<div class="wb-input" @focus="focus" @focusin="onfocusin($event)" @focusout="onfocusout($event)" tabindex="0" :data-type="type">
 
 		<slot name="top"></slot>
 
@@ -14,7 +14,7 @@
 				</Transition>
 
 
-				<wb-tokens-input
+				<wb-tokens-input-impl
 					class="-input -tokens"
 					ref="input"
 					v-if="type === 'tokens'"
@@ -22,8 +22,16 @@
 					:disabled="disabled"
 					:size="size"
 					:placeholder="placeholder"
-					v-model="value">
-				</wb-tokens-input>
+					v-model="value"
+					:token-slot-class="tokenClass"
+					@input="$emit('input', $event)"
+					@change="$emit('change', $event)"
+					@keyup="onkeyup($event)"
+					@focus="onfocus($event)">
+					<template #token="data">
+						<slot name="token" :token="data?.token"></slot>
+					</template>
+				</wb-tokens-input-impl>
 
 				<wb-radio-input-impl
 					class="-input -radio"
@@ -34,7 +42,11 @@
 					:name="name"
 					:radio-value="radioValue"
 					:placeholder="placeholder"
-					v-model="value">
+					v-model="value"
+					@input="$emit('input', $event)"
+					@change="$emit('change', $event)"
+					@keyup="onkeyup($event)"
+					@focus="onfocus($event)">
 				</wb-radio-input-impl>
 
 				<wb-checkbox-input-impl
@@ -46,7 +58,11 @@
 					:name="name"
 					:checkbox-value="checkboxValue"
 					:placeholder="placeholder"
-					v-model="value">
+					v-model="value"
+					@input="$emit('input', $event)"
+					@change="$emit('change', $event)"
+					@keyup="onkeyup($event)"
+					@focus="onfocus($event)">
 				</wb-checkbox-input-impl>
 
 				<wb-file-input-impl
@@ -60,8 +76,31 @@
 					:accept="accept"
 					:capture="capture"
 					:placeholder="placeholder"
-					v-model="value">
+					v-model="value"
+					@input="$emit('input', $event)"
+					@change="$emit('change', $event)"
+					@keyup="onkeyup($event)"
+					@focus="onfocus($event)">
 				</wb-file-input-impl>
+
+				<wb-select-input-impl
+					class="-input -file"
+					ref="input"
+					v-else-if="type === 'select'"
+					:required="required"
+					:disabled="disabled"
+					:name="name"
+					:multiple="multiple"
+					:placeholder="placeholder"
+					v-model="value"
+					@input="$emit('input', $event)"
+					@change="$emit('change', $event)"
+					@keyup="onkeyup($event)"
+					@focus="onfocus($event)">
+					<slot name="select">
+						<template></template>
+					</slot>
+				</wb-select-input-impl>
 
 				<input
 					class="-input -native"
@@ -77,7 +116,11 @@
 					:minlength="minLength"
 					:maxlength="maxLength"
 					:placeholder="placeholder"
-					v-model="value"/>
+					v-model="value"
+					@input="$emit('input', $event)"
+					@change="$emit('change', $event)"
+					@keyup="onkeyup($event)"
+					@focus="onfocus($event)"/>
 
 			</div>
 
@@ -92,6 +135,19 @@
 <!--			<li class="-summary-item" :key="summaryItem" v-for="summaryItem in summary">{{ summaryItem }}</li>-->
 <!--		</ul>-->
 
+		<wb-datalist
+			ref="datalist"
+			:anchor-el="$el"
+			v-if="$slots.options && isDatalistOpened"
+			:teleport-to="datalistTeleportTo"
+			:slot-class="optionsClass"
+			v-slot="data"
+			@focusin="datalist_onfocusin($event)"
+			@focusout="datalist_onfocusout($event)"
+			@highlighted="$emit('highlighted', $event)"
+			@selected="datalist_onSelected($event)">
+			<slot name="options" :highlighted="data.highlighted" :select="data.select"></slot>
+		</wb-datalist>
 
 	</div>
 </template>
@@ -99,18 +155,22 @@
 
 <script>
 /**
- * @typedef {'text'|'email'|'search'|'password'|'file'|'number'|'tokens'|'radio'|'checkbox'} WbInputType
+ * @typedef {'text'|'email'|'search'|'password'|'file'|'number'|'tokens'|'radio'|'checkbox'|'select'} WbInputType
  */
 
-import WbTokensInput from "./wb-tokens-input.vue";
-import WbRadioInputImpl from "./wb-radio-input-impl.vue";
-import WbCheckboxInputImpl from "./wb-checkbox-input-impl.vue";
-import WbFileInputImpl from "./wb-file-input-impl.vue";
+import WbRadioInputImpl from "./impl/wb-radio-input-impl.vue";
+import WbCheckboxInputImpl from "./impl/wb-checkbox-input-impl.vue";
+import WbFileInputImpl from "./impl/wb-file-input-impl.vue";
+import WbSelectInputImpl from "./impl/wb-select-input-impl.vue";
+import WbDatalist from "./wb-datalist.vue";
+import {DomUtils} from "@potentii/browser-utils";
+import WbTokensInputImpl from "./impl/wb-tokens-input-impl.vue";
 
 export default {
 
 	name: 'wb-input',
-	components: {WbFileInputImpl, WbCheckboxInputImpl, WbRadioInputImpl, WbTokensInput},
+
+	components: {WbTokensInputImpl, WbDatalist, WbSelectInputImpl, WbFileInputImpl, WbCheckboxInputImpl, WbRadioInputImpl},
 
 
 	props: {
@@ -122,7 +182,7 @@ export default {
 			type: String,
 			required: true,
 			default: 'text',
-			validate: val => ['text','email','search','password','file','number','tokens','radio','checkbox'].includes(val),
+			validate: val => ['text','email','search','password','file','number','tokens','radio','checkbox','select'].includes(val),
 		},
 
 		placeholder: {
@@ -231,6 +291,37 @@ export default {
 			required: false,
 		},
 
+
+
+		/**
+		 * @type {?string}
+		 */
+		tokenClass: {
+			type: String,
+			required: false,
+		},
+
+
+
+		/**
+		 * @type {?string}
+		 */
+		datalistTeleportTo: {
+			type: String,
+			required: false,
+		},
+
+
+
+		/**
+		 * @type {?string}
+		 */
+		optionsClass: {
+			type: String,
+			required: false,
+		},
+
+
 		/**
 		 * @type {(text:string) => shouldCommit:boolean}
 		 */
@@ -245,14 +336,25 @@ export default {
 	emits: [
 		'update:modelValue',
 		'input',
+		'focus',
+		'focusin',
+		'focusout',
+		'change',
+		'keyup',
+		'highlighted',
+		'selected',
+		'valueChanged',
+		'datalistOpened',
+		'datalistFocusin',
+		'datalistFocusout',
 	],
 
 
-	// data(){
-	// 	return {
-	//
-	// 	};
-	// },
+	data(){
+		return {
+			isDatalistOpened: false,
+		};
+	},
 
 
 	computed: {
@@ -263,6 +365,7 @@ export default {
 			},
 			set(newVal){
 				this.$emit('update:modelValue', newVal);
+				this.$emit('valueChanged', newVal);
 			}
 		},
 
@@ -274,8 +377,23 @@ export default {
 		showLabel(){
 			const hasLabelText = !!this.label?.trim().length;
 
+			if(this.type === 'select')
+				return hasLabelText;
+
 			return hasLabelText && (this.alwaysShowLabel || this.hasValue);
 		},
+
+
+
+		/**
+		 *
+		 * @return {boolean}
+		 */
+		datalistHasOptions(){
+			return !!this.$slots.options?.()?.[0]?.children?.length;
+		},
+
+
 
 		/**
 		 *
@@ -291,6 +409,18 @@ export default {
 		},
 
 	},
+
+
+
+	watch: {
+		isDatalistOpened(newVal, oldVal){
+			if(newVal && !oldVal){
+				this.$emit('datalistOpened');
+			}
+		}
+	},
+
+
 
 
 	mounted(){
@@ -318,6 +448,118 @@ export default {
 		blur(){
 			this.getMainInput()?.blur?.();
 		},
+
+
+		/**
+		 *
+		 * @param {KeyboardEvent} e
+		 */
+		onkeyup(e){
+			this.$emit('keyup', e);
+
+			if(e.key === 'ArrowDown'){
+				if(this.$slots.options){
+					e.preventDefault();
+
+					if(e.key === 'ArrowDown') {
+						// this.isDatalistOpened = true;
+						this.$nextTick(() => this.$refs.datalist.focusFirstOption())
+						// this.$refs.datalist.focusFirstOption();
+						// this.$emit('datalistOpened');
+					} /*else if(e.key === 'ArrowUp') {
+						this.isDatalistOpened = true;
+						this.$nextTick(() => this.$refs.datalist.focusLastOption())
+						// this.$refs.datalist.focusLastOption();
+						// this.$emit('datalistOpened');
+					}*/
+				}
+			}
+		},
+
+
+		/**
+		 * @param {FocusEvent} e
+		 */
+		onfocus(e){
+			this.$emit('focus', e)
+			// console.log(e)
+			// this.isDatalistOpened = true;
+		},
+
+
+		/**
+		 * @param {FocusEvent} e
+		 */
+		onfocusin(e){
+			this.$emit('focusin', e);
+			this.isDatalistOpened = true;
+		},
+
+		/**
+		 * @param {FocusEvent} e
+		 */
+		onfocusout(e){
+			this.$emit('focusout', e);
+			this.datalist_handleFocusOut(e);
+		},
+
+		/**
+		 * @param {FocusEvent} e
+		 */
+		datalist_onfocusin(e){
+			this.$emit('datalistFocusin', e);
+			this.isDatalistOpened = true;
+		},
+
+		/**
+		 * @param {FocusEvent} e
+		 */
+		datalist_onfocusout(e){
+			this.$emit('datalistFocusout', e);
+			this.datalist_handleFocusOut(e);
+		},
+
+		/**
+		 *
+		 * @param {FocusEvent} e
+		 */
+		datalist_handleFocusOut(e){
+			if(this.isDatalistOpened){
+				const newFocusIsInsideDatalist = !!DomUtils.getParentUsingPredicate(e.relatedTarget, el => el === this.$refs.datalist?.$refs?.panel);
+
+				if(!newFocusIsInsideDatalist) {
+					this.isDatalistOpened = false;
+				}
+			}
+		},
+
+
+
+		/**
+		 *
+		 * @param {?*} value
+		 */
+		datalist_onSelected(value){
+			switch (this.type) {
+				case 'file':
+				case 'tokens':
+				case 'select':
+					this.$refs.input.onSelectedFromDatalist(value);
+					break;
+				case 'text':
+				case 'email':
+				case 'search':
+				case 'password':
+				case 'number':
+					this.value = value;
+					break;
+			}
+
+			this.isDatalistOpened = false;
+
+			this.$emit('selected', value);
+		},
+
 
 
 		/**
@@ -398,7 +640,8 @@ export default {
 
 	/*background-color: color-mix(in hsl, var(--wb--local-bg-color-contrast) 10%, var(--var-bg-color));*/
 
-	--var-bg-color: var(--wb-input--bg-color, color-mix(in hsl, var(--wb--local-fg-color) 6%, var(--wb--local-bg-color)));
+	/*--var-bg-color: var(--wb-input--bg-color, color-mix(in hsl, var(--wb--local-bg-color) 50%, #FAFAFA));*/
+	--var-bg-color: var(--wb-input--bg-color, hsl(from var(--wb--local-bg-color) h s calc(l + 5)));
 	--var-fg-color: var(--wb-input--fg-color, var(--wb--local-fg-color));
 
 
@@ -415,12 +658,14 @@ export default {
 }
 .wb-input:not([data-type="radio"]),
 .wb-input:not([data-type="checkbox"]),
-.wb-input:not([data-type="file"]){
+.wb-input:not([data-type="file"]),
+.wb-input:not([data-type="select"]){
 	cursor: text;
 }
 .wb-input[data-type="radio"],
 .wb-input[data-type="checkbox"],
-.wb-input[data-type="file"]{
+.wb-input[data-type="file"],
+.wb-input[data-type="select"]{
 	cursor: default;
 }
 .wb-input > .-box{

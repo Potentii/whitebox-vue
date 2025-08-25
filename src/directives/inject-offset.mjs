@@ -12,107 +12,102 @@ import {MathUtils} from "@potentii/math-utils";
 const dataById = new Map();
 
 
-export default class InjectOffset {
+export const InjectOffset = {
 
-    static install(app, options) {
-        app.directive('inject-offset', new InjectOffset());
-    }
+	// install(app, options) {
+	// 	app.directive('inject-offset', this);
+	// },
 
-
-    // // called before bound element's attributes
-    // // or event listeners are applied
-    // created(el, binding, vnode, prevVnode) {
-    // 	// see below for details on arguments
-    // }
-    //
-    // // called right before the element is inserted into the DOM.
-    // beforeMount(el, binding, vnode, prevVnode) {
-    //
-    // }
-
-    // called when the bound element's parent component
-    // and all its children are mounted.
-    /**
-     *
-     * @param {HTMLElement} el
-     * @param {?VueDirectiveBinding} binding
-     * @param {VNode} vnode
-     * @param {VNode} prevVnode
-     */
-    mounted(el, binding, vnode, prevVnode) {
-        // console.log(binding)
-        /**
-         * @type {?HTMLElement}
-         */
-        const $from = binding.value.$from;
-        if (!$from)
-            return;
-
-        /**
-         * @type {boolean}
-         */
-        const once = !!binding.value.once;
-        /**
-         * @type {number}
-         */
-        const tick = MathUtils.clamp(
-            Number.isNaN(Number(binding.value.tick))
-                ? 0
-                : Number(binding.value.tick),
-            0,
-            Number.MAX_VALUE
-        );
+	// // called before bound element's attributes
+	// // or event listeners are applied
+	// created(el, binding, vnode, prevVnode) {
+	// 	// see below for details on arguments
+	// }
+	//
+	// // called right before the element is inserted into the DOM.
+	// beforeMount(el, binding, vnode, prevVnode) {
+	//
+	// }
 
 
-        const commonParent = DomUtils.getCommonParent(el, $from);
-        if (!commonParent)
-            throw new Error(`v-inject-offset: Elements not on the same DOM tree "${el}" and "${$from}"`);
+	/**
+	 *
+	 * @param {HTMLElement} el
+	 */
+	updateOffset(el){
+		return deltaTime => {
+			const $anchor = el._getAnchor();
 
-        /**
-         * @type {boolean}
-         */
-        let isActive = true;
-        /**
-         * @type {?Vector2}
-         */
-        let lastOffset = null;
-        const tickFn = deltaTime => {
-            const newOffset = DomUtils.relativePosition(commonParent, document.querySelector('body')).plus(DomUtils.relativePosition($from, commonParent));
+			if($anchor) {
+				const commonParent = DomUtils.getCommonParent(el, $anchor);
+				if (!commonParent)
+					return;
+				// if (!commonParent)
+				// 	throw new Error(`v-inject-offset: Elements not on the same DOM tree "${el}" and "${$anchor}"`);
 
-            if (!newOffset.equals(lastOffset)) {
-                el.style.setProperty('--v-offset-x', newOffset.x + "px");
-                el.style.setProperty('--v-offset-y', newOffset.y + "px");
-                lastOffset = newOffset;
-            }
 
-            if (isActive)
-                window.requestAnimationFrame(tickFn);
-        }
+				const newOffset = DomUtils.relativePosition(commonParent, document.querySelector('body')).plus(DomUtils.relativePosition($anchor, commonParent));
 
-        window.requestAnimationFrame(tickFn);
-    }
+				// console.log(newOffset)
+				if (!newOffset.equals(el._lastOffset)) {
+					el.style.setProperty('--v-offset-x', newOffset.x + "px");
+					el.style.setProperty('--v-offset-y', newOffset.y + "px");
+					el._lastOffset = newOffset;
+
+					// window.requestAnimationFrame(InjectOffset.updateOffset(el));
+				}
+			}
+
+			if (el._isActive)
+				window.requestAnimationFrame(InjectOffset.updateOffset(el));
+		}
+	},
 
 
 
-    // // called before the parent component is updated
-    // beforeUpdate(el, binding, vnode, prevVnode) {
-    //
-    // }
 
-    // called after the parent component and
-    // all of its children have updated
-    updated(el, binding, vnode, prevVnode) {
 
-    }
+	// called when the bound element's parent component
+	// and all its children are mounted.
+	/**
+	 *
+	 * @param {HTMLElement} el
+	 * @param {?VueDirectiveBinding} binding
+	 * @param {VNode} vnode
+	 * @param {VNode} prevVnode
+	 */
+	mounted(el, binding, vnode, prevVnode) {
 
-    // called before the parent component is unmounted
-    beforeUnmount(el, binding, vnode, prevVnode) {
+		el._getAnchor = binding.value.getAnchor;
+		el._isActive = true;
+		el._lastOffset = null;
 
-    }
+		window.requestAnimationFrame(InjectOffset.updateOffset(el));
+	},
 
-    // called when the parent component is unmounted
-    unmounted(el, binding, vnode, prevVnode) {
 
-    }
+	// // called before the parent component is updated
+	// beforeUpdate(el, binding, vnode, prevVnode) {
+	//
+	// }
 
-}
+	// called after the parent component and
+	// all of its children have updated
+	updated(el, binding, vnode, prevVnode) {
+		// window.requestAnimationFrame(InjectOffset.updateOffset(el));
+		// console.log('aaaa')
+		// InjectOffset.updateOffset(el)();
+		// console.log(el)
+	},
+
+	// called before the parent component is unmounted
+	beforeUnmount(el, binding, vnode, prevVnode) {
+
+	},
+
+	// called when the parent component is unmounted
+	unmounted(el, binding, vnode, prevVnode) {
+
+	},
+
+};

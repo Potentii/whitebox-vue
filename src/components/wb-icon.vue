@@ -1,5 +1,15 @@
 <template>
-	<i class="wb-icon --wb--not-selectable" :class="{ [iconProviderComputed]: true }"><slot></slot></i>
+	<i
+		class="wb-icon --wb--not-selectable"
+		:class="{
+			[iconProviderComputed]: true,
+
+			'--size-biggest': !!sizeBiggest,
+			'--size-big': !!sizeBig,
+			'--size-small': !!sizeSmall,
+			'--size-smallest': !!sizeSmallest,
+
+		}"><slot></slot></i>
 </template>
 
 
@@ -27,6 +37,33 @@ export default {
 			required: false,
 			validator: value => ['material-icons','material-symbols-outlined','material-symbols-rounded','material-symbols-sharp'].includes(value),
 		},
+
+
+		sizeBiggest: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeBig: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeSmall: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+		sizeSmallest: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+
 	},
 
 
@@ -50,6 +87,33 @@ export default {
 
 
 <style>
+
+
+
+/*
+ * ==============================
+ * Sizes
+ * ==============================
+ */
+.wb-icon.--size-biggest{
+	font-size: calc(1em + 8px);
+}
+.wb-icon.--size-big{
+	font-size: calc(1em + 4px);
+}
+.wb-icon{
+	font-size: 1em;
+}
+.wb-icon.--size-small{
+	font-size: calc(1em - 3px);
+}
+.wb-icon.--size-smallest{
+	font-size: calc(1em - 6px);
+}
+
+
+
+
 .wb-icon{
 	display: flex;
 	flex-direction: row;

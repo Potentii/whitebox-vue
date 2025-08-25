@@ -13,7 +13,9 @@
 			:capture="capture"
 			:multiple="multiple"
 			v-show="false"
-			@change="onchange($event)"/>
+			@input="$emit('input', $event)"
+			@change="onchange($event)"
+			@keyup="$emit('keyup', $event)"/>
 
 
 		<span class="-placeholder" v-if="placeholder?.trim()?.length && !value?.length">{{ placeholder }}</span>
@@ -67,10 +69,10 @@
 <script>
 
 
-import WbIcon from "./wb-icon.vue";
-import WbThumb from "./wb-thumb.vue";
-import WbButton from "./wb-button.vue";
-import WbFile from "./wb-file.vue";
+import WbIcon from "../../wb-icon.vue";
+import WbThumb from "../../wb-thumb.vue";
+import WbButton from "../../wb-button.vue";
+import WbFile from "../../wb-file.vue";
 
 export default {
 
@@ -175,6 +177,9 @@ export default {
 
 	emits: [
 		'update:modelValue',
+		'input',
+		'change',
+		'keyup',
 	],
 
 
@@ -195,6 +200,7 @@ export default {
 		 * @param e
 		 */
 		onchange(e){
+			this.$emit('change', e);
 			const newFiles = e.target.files || [];
 
 			if(this.multiple){
@@ -217,7 +223,17 @@ export default {
 			const index = this.value.indexOf(file);
 			if(index >= 0)
 				this.value.splice(index, 1);
-		}
+		},
+
+
+
+		/**
+		 *
+		 * @param {?*} value
+		 */
+		onSelectedFromDatalist(value){
+			this.value = value;
+		},
 	}
 
 }

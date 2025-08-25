@@ -11,7 +11,10 @@
 			:disabled="disabled"
 			:value="radioValue"
 			v-show="false"
-			v-model="value"/>
+			v-model="value"
+			@input="$emit('input', $event)"
+			@change="$emit('change', $event)"
+			@keyup="$emit('keyup', $event)"/>
 
 
 
@@ -34,7 +37,7 @@
 <script>
 
 
-import WbIcon from "./wb-icon.vue";
+import WbIcon from "../../wb-icon.vue";
 
 export default {
 
@@ -124,6 +127,9 @@ export default {
 
 	emits: [
 		'update:modelValue',
+		'input',
+		'change',
+		'keyup',
 	],
 
 

@@ -355,11 +355,13 @@
 /*}*/
 
 
+.--wb--datalist-option{
+	padding: 0.25em 0.5em;
+}
 
-
-.--wb--datalist-option:not(:disabled):hover,
-.--wb--datalist-option:not(:disabled):focus-within{
-	background-color: color-mix(in hsl, var(--wb--local-bg-color-contrast) 80%, transparent);
+.--wb--datalist-option--highlightable:not(:disabled):hover,
+.--wb--datalist-option--highlightable:not(:disabled):focus-within{
+	background-color: color-mix(in hsl, var(--wb--local-bg-color-contrast) 10%, transparent);
 }
 
 

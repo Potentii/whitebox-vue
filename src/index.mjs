@@ -8,6 +8,8 @@ import WbShimmer from "./components/wb-shimmer.vue";
 import WbShimmerItem from "./components/wb-shimmer-item.vue";
 import WbFile from "./components/wb-file.vue";
 import WbThumb from "./components/wb-thumb.vue";
+import WbFieldset from "./components/input/wb-fieldset.vue";
+import WbLegend from "./components/input/wb-legend.vue";
 
 import {WhiteboxResets, WhiteboxMain} from "./styles/styles.mjs";
 
@@ -28,6 +30,8 @@ export {
 	WbShimmerItem,
 	WbFile,
 	WbThumb,
+	WbFieldset,
+	WbLegend,
 
 	WhiteboxResets,
 	WhiteboxMain,

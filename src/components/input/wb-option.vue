@@ -1,6 +1,6 @@
 <template>
 	<option
-		class="wb-option"
+		class="wb-option --wb--datalist-option"
 		tabindex="0"
 		@click="$emit('click', $event)"
 		:data-value="value"

@@ -155,6 +155,10 @@ export default {
 
 	methods: {
 
+		getParentWbInput(){
+			return this.$parent;
+		},
+
 		getMainInput() {
 			return this.$refs.lastFakeInput;
 		},
@@ -162,9 +166,9 @@ export default {
 
 		/**
 		 *
-		 * @param {?*} value
+		 * @param {WbDatalistSelectedEvent} e
 		 */
-		onSelectedFromDatalist(value) {
+		onSelectedFromDatalist(e) {
 			let newTokenIndex = this.lastFocusedFakeInputIndex === null || this.lastFocusedFakeInputIndex === undefined
 				? this.tokens.length
 				: this.lastFocusedFakeInputIndex;
@@ -179,9 +183,9 @@ export default {
 
 			// *Adding the selected suggestion on the input as a new token:
 			if (!this.tokens) {
-				this.tokens = [value]
+				this.tokens = [e.value]
 			} else {
-				this.tokens.splice(newTokenIndex, 0, value);
+				this.tokens.splice(newTokenIndex, 0, e.value);
 			}
 
 

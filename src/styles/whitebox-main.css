@@ -357,8 +357,10 @@
 
 
 
-
-
+.--wb--datalist-option:not(:disabled):hover,
+.--wb--datalist-option:not(:disabled):focus-within{
+	background-color: color-mix(in hsl, var(--wb--local-bg-color-contrast) 80%, transparent);
+}
 
 
 

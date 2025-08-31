@@ -8,6 +8,8 @@ import WbShimmer from "./components/wb-shimmer";
 import WbShimmerItem from "./components/wb-shimmer-item";
 import WbFile from "./components/wb-file";
 import WbThumb from "./components/wb-thumb";
+import WbFieldset from "./components/input/wb-fieldset";
+import WbLegend from "./components/input/wb-legend";
 
 import {WhiteboxResets, WhiteboxMain} from './styles/styles';
 
@@ -28,6 +30,8 @@ export {
 	WbShimmerItem,
 	WbFile,
 	WbThumb,
+	WbFieldset,
+	WbLegend,
 
 	WhiteboxResets,
 	WhiteboxMain,

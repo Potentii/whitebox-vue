@@ -190,6 +190,11 @@ export default {
 
 	methods: {
 
+		getParentWbInput(){
+			return this.$parent;
+		},
+
+
 		getMainInput(){
 			return this.$refs.input;
 		},
@@ -229,10 +234,10 @@ export default {
 
 		/**
 		 *
-		 * @param {?*} value
+		 * @param {WbDatalistSelectedEvent} e
 		 */
-		onSelectedFromDatalist(value){
-			this.value = value;
+		onSelectedFromDatalist(e){
+			this.value = e.value;
 		},
 	}
 

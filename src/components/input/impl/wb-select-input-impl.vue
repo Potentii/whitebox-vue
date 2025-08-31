@@ -1,21 +1,28 @@
 <template>
 	<div class="wb-select-input-impl">
 
-		<select
-			class="-input -native"
-			ref="input"
-			:id="randId"
-			:name="name"
-			:required="required"
-			:disabled="disabled"
-			:multiple="multiple"
-			v-model="value"
+<!--		<select-->
+<!--			class="-select -native"-->
+<!--			ref="select"-->
+<!--			hidden="hidden"-->
+<!--			:id="randId"-->
+<!--			:name="name"-->
+<!--			:required="required"-->
+<!--			:disabled="disabled"-->
+<!--			:multiple="multiple"-->
+<!--			v-model="value"-->
+<!--			@input="$emit('input', $event)"-->
+<!--			@change="onchange($event)">-->
+<!--		</select>-->
+
+		<output
+			class="-output"
+			ref="output"
 			@focus="onfocus($event)"
-			@input="$emit('input', $event)"
-			@change="onchange($event)"
-			@keyup="$emit('keyup', $event)">
-			<slot></slot>
-		</select>
+			@keyup="$emit('keyup', $event)">{{ selectedLabel }}</output>
+
+
+
 
 
 <!--		<span class="-placeholder" v-if="placeholder?.trim()?.length && !value?.length">{{ placeholder }}</span>-->
@@ -69,17 +76,9 @@
 <script>
 
 
-import WbIcon from "../../wb-icon.vue";
-import WbThumb from "../../wb-thumb.vue";
-import WbButton from "../../wb-button.vue";
-import WbFile from "../../wb-file.vue";
-
 export default {
 
 	name: 'wb-select-input-impl',
-
-
-	components: {WbFile, WbButton, WbThumb, WbIcon},
 
 
 	props: {
@@ -138,6 +137,7 @@ export default {
 	data(){
 		return {
 			randId: null,
+			selectedLabel: null,
 		};
 	},
 
@@ -158,6 +158,33 @@ export default {
 	},
 
 
+
+	watch: {
+
+		value: {
+			handler(value) {
+				const extractLabel = () => {
+					const datalist = this.getParentWbInput()?.getDatalist();
+					const option = datalist?.getOptionsElements()?.find(optionElement => optionElement?.dataset?.value === value);
+					return option?.innerText;
+				}
+				this.selectedLabel = extractLabel();
+
+				if(this.selectedLabel === undefined){
+					setTimeout(() => {
+						this.selectedLabel = extractLabel();
+					}, 0);
+				}
+
+			},
+			immediate: true,
+		}
+
+
+	},
+
+
+
 	emits: [
 		'update:modelValue',
 		'input',
@@ -172,10 +199,16 @@ export default {
 	},
 
 
+
+
 	methods: {
 
+		getParentWbInput(){
+			return this.$parent;
+		},
+
 		getMainInput(){
-			return this.$refs.input;
+			return this.$refs.output;
 		},
 
 
@@ -185,7 +218,7 @@ export default {
 		 */
 		onfocus(e){
 			this.$emit('focus', e);
-			this.$refs.input.click();
+			// this.$refs.output.click();
 		},
 
 		/**
@@ -200,10 +233,10 @@ export default {
 
 		/**
 		 *
-		 * @param {?*} value
+		 * @param {WbDatalistSelectedEvent} e
 		 */
-		onSelectedFromDatalist(value){
-			this.value = value;
+		onSelectedFromDatalist(e){
+			this.value = e.value;
 		},
 	}
 
@@ -220,7 +253,7 @@ export default {
 	gap: 0.5em;
 }
 
-.wb-select-input-impl > .-input {
+.wb-select-input-impl > .-output {
 	width: 100%;
 }
 

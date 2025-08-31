@@ -140,6 +140,10 @@ export default {
 
 	methods: {
 
+		getParentWbInput(){
+			return this.$parent;
+		},
+
 		getMainInput(){
 			return this.$refs.input;
 		},

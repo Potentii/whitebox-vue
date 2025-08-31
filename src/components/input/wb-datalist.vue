@@ -22,6 +22,11 @@
  * @typedef {{ el: HTMLElement, value: * }} WbDatalistOptionVo
  */
 
+/**
+ * @typedef {{ value: *, label: ?string, target: ?HTMLElement }} WbDatalistSelectedEvent
+ */
+
+
 import {InjectOffset} from "../../directives/inject-offset.mjs";
 import {InjectSize} from "../../directives/inject-size.mjs";
 import {MathUtils} from "@potentii/math-utils";
@@ -49,6 +54,14 @@ export default {
 		 * @type {?string}
 		 */
 		slotClass: {
+			type: String,
+			required: false,
+		},
+
+		/**
+		 * @type {?string}
+		 */
+		optionClass: {
 			type: String,
 			required: false,
 		},
@@ -97,7 +110,7 @@ export default {
 			if(!this.$refs.panel)
 				return;
 
-			const matrix = this.getOptions();
+			const matrix = this.getOptionsMatrix();
 
 			if(!matrix.length || !matrix[0].length)
 				return;
@@ -109,7 +122,7 @@ export default {
 			if(!this.$refs.panel)
 				return;
 
-			const matrix = this.getOptions();
+			const matrix = this.getOptionsMatrix();
 
 			if(!matrix.length)
 				return;
@@ -149,7 +162,16 @@ export default {
 
 
 		selectOption(value){
-			this.$emit('selected', value);
+			const target = this.getOptionsElements().find(optionEl => optionEl.dataset?.value === value);
+
+			const label = target ? target.innerText : null;
+
+			/**
+			 * @type {WbDatalistSelectedEvent}
+			 */
+			const selectedEvent = { value: value, label: label, target: target };
+
+			this.$emit('selected', selectedEvent);
 			this.focusOut();
 		},
 
@@ -200,7 +222,7 @@ export default {
 			if(deltaY === 0 && deltaX === 0)
 				return;
 
-			const matrix = this.getOptions();
+			const matrix = this.getOptionsMatrix();
 
 			if(!matrix.length)
 				return;
@@ -263,8 +285,8 @@ export default {
 		 *
 		 * @return {WbDatalistOptionVo[][]}
 		 */
-		getOptions(){
-			const optionEls = [...this.$refs.panel.querySelectorAll('.wb-option')];
+		getOptionsMatrix(){
+			const optionEls = this.getOptionsElements();
 			const matrix = [];
 			let row = 0;
 			let column;
@@ -291,6 +313,16 @@ export default {
 			}
 
 			return matrix;
+		},
+
+
+		/**
+		 *
+		 * @return {HTMLElement[]}
+		 */
+		getOptionsElements(){
+			const optionEls = [...this.$refs.panel.querySelectorAll(this.optionClass ? '.' + this.optionClass : '.wb-option')];
+			return optionEls;
 		},
 
 
@@ -322,7 +354,7 @@ export default {
 	overflow-y: auto;
 	overflow-x: hidden;
 
-	z-index: 10;
+	z-index: 100;
 
 	box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.15);
 

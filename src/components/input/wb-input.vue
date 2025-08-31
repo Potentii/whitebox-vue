@@ -1,5 +1,15 @@
 <template>
-	<div class="wb-input" @focus="focus" @focusin="onfocusin($event)" @focusout="onfocusout($event)" tabindex="0" :data-type="type">
+	<div
+		class="wb-input"
+		:class="{
+			'--transparent': transparent,
+		}"
+		@focus="focus"
+		@focusin="onfocusin($event)"
+		@focusout="onfocusout($event)"
+		@click="onclick($event)"
+		tabindex="0"
+		:data-type="type">
 
 		<slot name="top"></slot>
 
@@ -124,6 +134,7 @@
 
 			</div>
 
+			<wb-icon class="-expand-datalist" v-if="type === 'select'">{{ $slots.options && isDatalistOpened ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</wb-icon>
 
 			<slot name="end"></slot>
 
@@ -141,6 +152,7 @@
 			v-if="$slots.options && isDatalistOpened"
 			:teleport-to="datalistTeleportTo"
 			:slot-class="optionsClass"
+			:option-class="optionClass"
 			v-slot="data"
 			@focusin="datalist_onfocusin($event)"
 			@focusout="datalist_onfocusout($event)"
@@ -165,12 +177,15 @@ import WbSelectInputImpl from "./impl/wb-select-input-impl.vue";
 import WbDatalist from "./wb-datalist.vue";
 import {DomUtils} from "@potentii/browser-utils";
 import WbTokensInputImpl from "./impl/wb-tokens-input-impl.vue";
+import WbIcon from "../wb-icon.vue";
 
 export default {
 
 	name: 'wb-input',
 
-	components: {WbTokensInputImpl, WbDatalist, WbSelectInputImpl, WbFileInputImpl, WbCheckboxInputImpl, WbRadioInputImpl},
+	components: {
+		WbIcon,
+		WbTokensInputImpl, WbDatalist, WbSelectInputImpl, WbFileInputImpl, WbCheckboxInputImpl, WbRadioInputImpl},
 
 
 	props: {
@@ -215,6 +230,12 @@ export default {
 		},
 
 		alwaysShowLabel: {
+			type: Boolean,
+			required: false,
+			default: false,
+		},
+
+		transparent: {
 			type: Boolean,
 			required: false,
 			default: false,
@@ -321,6 +342,14 @@ export default {
 			required: false,
 		},
 
+		/**
+		 * @type {?string}
+		 */
+		optionClass: {
+			type: String,
+			required: false,
+		},
+
 
 		/**
 		 * @type {(text:string) => shouldCommit:boolean}
@@ -335,6 +364,7 @@ export default {
 
 	emits: [
 		'update:modelValue',
+		'click',
 		'input',
 		'focus',
 		'focusin',
@@ -504,6 +534,16 @@ export default {
 		},
 
 		/**
+		 * @param {PointerEvent} e
+		 */
+		onclick(e){
+			this.$emit('click', e);
+			if((this.type === 'radio' || this.type === 'checkbox') && e.target !== this.getMainInput() && !DomUtils.getParentUsingPredicate(e.target, el => el === this.getMainInput() || el.control === this.getMainInput())){
+				this.getMainInput()?.click?.();
+			}
+		},
+
+		/**
 		 * @param {FocusEvent} e
 		 */
 		datalist_onfocusin(e){
@@ -534,30 +574,39 @@ export default {
 		},
 
 
+		/**
+		 *
+		 * @return {WbDatalist}
+		 */
+		getDatalist(){
+			return this.$refs.datalist;
+		},
+
+
 
 		/**
 		 *
-		 * @param {?*} value
+		 * @param {WbDatalistSelectedEvent} e
 		 */
-		datalist_onSelected(value){
+		datalist_onSelected(e){
 			switch (this.type) {
 				case 'file':
 				case 'tokens':
 				case 'select':
-					this.$refs.input.onSelectedFromDatalist(value);
+					this.$refs.input.onSelectedFromDatalist(e);
 					break;
 				case 'text':
 				case 'email':
 				case 'search':
 				case 'password':
 				case 'number':
-					this.value = value;
+					this.value = e.value;
 					break;
 			}
 
 			this.isDatalistOpened = false;
 
-			this.$emit('selected', value);
+			this.$emit('selected', e);
 		},
 
 
@@ -668,6 +717,7 @@ export default {
 .wb-input[data-type="select"]{
 	cursor: default;
 }
+
 .wb-input > .-box{
 	flex: 0 0 auto;
 	display: flex;
@@ -690,6 +740,9 @@ export default {
 
 	box-shadow: var(--wb-input--box-shadow);
 	border-radius: var(--wb-input--border-radius);
+}
+.wb-input.--transparent > .-box{
+	--wb--local-bg-color: transparent;
 }
 .wb-input > .-box > .-input-container{
 	flex: 1 1 auto;

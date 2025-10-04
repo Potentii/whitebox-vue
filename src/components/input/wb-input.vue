@@ -34,6 +34,7 @@
 					:placeholder="placeholder"
 					v-model="value"
 					:token-slot-class="tokenClass"
+					:allow-token-creation="allowTokenCreation"
 					@input="$emit('input', $event)"
 					@change="$emit('change', $event)"
 					@keyup="onkeyup($event)"
@@ -320,6 +321,15 @@ export default {
 		tokenClass: {
 			type: String,
 			required: false,
+		},
+
+		/**
+		 * @type {boolean}
+		 */
+		allowTokenCreation: {
+			type: Boolean,
+			required: false,
+			default: false
 		},
 
 

@@ -77,6 +77,16 @@ export default {
 			required: false
 		},
 
+		/**
+		 * @type {boolean}
+		 */
+		allowTokenCreation: {
+			type: Boolean,
+			required: false,
+			default: false
+		},
+
+
 
 		// TODO
 		/**
@@ -150,6 +160,7 @@ export default {
 		'input',
 		'keydown',
 		'keyup',
+		'change'
 	],
 
 
@@ -169,11 +180,49 @@ export default {
 		 * @param {WbDatalistSelectedEvent} e
 		 */
 		onSelectedFromDatalist(e) {
+
+			this.insertTokenOnLastFocusedFakeInput(e.value);
+			//
+			// let newTokenIndex = this.lastFocusedFakeInputIndex === null || this.lastFocusedFakeInputIndex === undefined
+			// 	? this.tokens.length
+			// 	: this.lastFocusedFakeInputIndex;
+			//
+			// // console.log('newTokenIndex', newTokenIndex);
+			//
+			// let fakeInput = this.$el.querySelector(`.-fake-input[data-fake-input-index="${newTokenIndex}"]`);
+			// if (fakeInput) {
+			// 	fakeInput.value = '';
+			// 	this.updateFakeInputSize(fakeInput);
+			// }
+			//
+			// // *Adding the selected suggestion on the input as a new token:
+			// if (!this.tokens) {
+			// 	this.tokens = [e.value]
+			// } else {
+			// 	this.tokens.splice(newTokenIndex, 0, e.value);
+			// }
+			//
+			//
+			// setTimeout(() => {
+			// 	let nextFakeInput = this.$el.querySelector(`.-fake-input[data-fake-input-index="${newTokenIndex + 1}"]`);
+			// 	if (nextFakeInput) {
+			// 		// nextFakeInput.value = '';
+			// 		// nextFakeInput.focus();
+			// 		this.focusAndSetCaretOnInput(nextFakeInput, 'start');
+			// 	}
+			// }, 0);
+
+		},
+
+
+		/**
+		 *
+		 * @param {*} token
+		 */
+		insertTokenOnLastFocusedFakeInput(token) {
 			let newTokenIndex = this.lastFocusedFakeInputIndex === null || this.lastFocusedFakeInputIndex === undefined
 				? this.tokens.length
 				: this.lastFocusedFakeInputIndex;
-
-			console.log('newTokenIndex', newTokenIndex);
 
 			let fakeInput = this.$el.querySelector(`.-fake-input[data-fake-input-index="${newTokenIndex}"]`);
 			if (fakeInput) {
@@ -183,9 +232,9 @@ export default {
 
 			// *Adding the selected suggestion on the input as a new token:
 			if (!this.tokens) {
-				this.tokens = [e.value]
+				this.tokens = [token]
 			} else {
-				this.tokens.splice(newTokenIndex, 0, e.value);
+				this.tokens.splice(newTokenIndex, 0, token);
 			}
 
 
@@ -197,7 +246,6 @@ export default {
 					this.focusAndSetCaretOnInput(nextFakeInput, 'start');
 				}
 			}, 0);
-
 		},
 
 
@@ -350,6 +398,25 @@ export default {
 		 */
 		fakeInput_onKeyup(e) {
 			this.$emit('keyup', e);
+
+			switch (e.key) {
+				case 'Enter': {
+					e.preventDefault();
+
+					// *Checking if the user is pressing 'enter' on a fake input that has a value:
+					if(e.target.value?.trim?.()?.length){
+						this.$emit('change', e);
+
+						if(this.allowTokenCreation){
+							this.insertTokenOnLastFocusedFakeInput(e.target.value);
+						}
+					}
+
+					break;
+				}
+			}
+
+
 		},
 
 		/**

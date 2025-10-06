@@ -52,4 +52,21 @@ export default class Snackbar{
 		this.#store.removeSnackById(id);
 	}
 
+
+	/**
+	 * @return {ESnackLevelsEnum}
+	 */
+	static get LEVELS(){
+		return Snack.LEVELS;
+	}
+
+	/**
+	 * @return {ESnackTimeoutsEnum}
+	 */
+	static get TIMEOUTS(){
+		return Snack.TIMEOUTS;
+	}
+
+
+
 }

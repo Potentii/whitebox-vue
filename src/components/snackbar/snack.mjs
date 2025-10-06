@@ -2,6 +2,9 @@
  * @typedef {'ERROR'|'INFO'|'SUCCESS'|'WARNING'} ESnackLevel
  */
 /**
+ * @typedef {{INFO: 'INFO', SUCCESS: 'SUCCESS', WARNING: 'WARNING', ERROR: 'ERROR'}} ESnackLevelsEnum
+ */
+/**
  * @enum {ESnackLevel}
  */
 const LEVELS = {
@@ -12,6 +15,9 @@ const LEVELS = {
 }
 /**
  * @typedef {number} ESnackTimeout
+ */
+/**
+ * @typedef {{SHORT: 4_000, MEDIUM: 8_000, LONG: 12_000, SUPER_LONG: 20_000}} ESnackTimeoutsEnum
  */
 /**
  *
@@ -79,7 +85,7 @@ export default class Snack{
 
 	/**
 	 *
-	 * @enum {ESnackLevel}
+	 * @return {ESnackLevelsEnum}
 	 */
 	static get LEVELS(){
 		return LEVELS;
@@ -87,7 +93,7 @@ export default class Snack{
 
 	/**
 	 *
-	 * @enum {ESnackTimeout}
+	 * @return {ESnackTimeoutsEnum}
 	 */
 	static get TIMEOUTS(){
 		return TIMEOUTS;

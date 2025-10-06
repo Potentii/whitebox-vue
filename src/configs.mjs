@@ -3,6 +3,12 @@ import Snackbar from "./components/snackbar/snackbar.mjs";
 
 
 /**
+ * @typedef {Object} WhiteboxGlobal
+ * @property {typeof Snackbar} snackbar
+ */
+
+
+/**
  *
  * @param {object} [opts]
  * @param {EWbIconProvider} [opts.defaultIconProvider]
@@ -16,8 +22,14 @@ export function install(opts){
 	configsStore.showIconOnLoadingButton = opts?.showIconOnLoadingButton || false;
 
 
+	/**
+	 * @param {import('vue').App} app
+	 */
 	return app => {
 
+		/**
+		 * @type {WhiteboxGlobal}
+		 */
 		app.config.globalProperties.$wb = {
 			snackbar: Snackbar,
 		};

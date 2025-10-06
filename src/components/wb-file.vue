@@ -255,6 +255,8 @@ export default {
 }
 
 .wb-file > .-video.-content {
+	object-fit: var(--wb-file--object-fit);
+	object-position: center center;
 }
 
 .wb-file > .-document.-content {

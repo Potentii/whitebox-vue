@@ -45,24 +45,13 @@
 
 import {ProbeUtils} from "@potentii/browser-utils";
 
-/**
- *
- *
- * Suportar:
- * - Digitar ao final da caixa, e também entre os itens
- *
- * - Navegação com cursor (setas direcionais quando focado):
- *   - Navegar com o cursor entre os itens
- *   - Se segurar shift+setas: vai selecionando/des-selecionando os itens que passar
- *   - Se segurar shift+end/home: seleciona tudo até o fim/começo do campo
- *
- *
- *
- *
- *
- *
- *
- */
+
+
+// TODO support shift+arrow keys (or shift+home/end) to select multiple tokens
+// TODO support for delete/copy those selected tokens
+// TODO support for paste
+
+
 export default {
 
 	name: 'wb-tokens-input-impl',
@@ -84,6 +73,14 @@ export default {
 			type: Boolean,
 			required: false,
 			default: false
+		},
+
+		/**
+		 * @type {?function(*):*}
+		 */
+		mapCreatedToken: {
+			type: Function,
+			required: false
 		},
 
 
@@ -108,7 +105,6 @@ export default {
 			default: false
 		},
 
-		// TODO
 		/**
 		 * @type {?string}
 		 */
@@ -408,7 +404,13 @@ export default {
 						this.$emit('change', e);
 
 						if(this.allowTokenCreation){
-							this.insertTokenOnLastFocusedFakeInput(e.target.value);
+							let token = e.target.value;
+
+							if(typeof this.mapCreatedToken === 'function'){
+								token = this.mapCreatedToken(token);
+							}
+
+							this.insertTokenOnLastFocusedFakeInput(token);
 						}
 					}
 
@@ -425,7 +427,7 @@ export default {
 		fakeInput_onFocus(e) {
 			setTimeout(() => {
 				this.lastFocusedFakeInputIndex = Number(e.target.dataset.fakeInputIndex);
-				console.log('focus-index', this.lastFocusedFakeInputIndex)
+				// console.log('focus-index', this.lastFocusedFakeInputIndex)
 			}, 0)
 			// console.log(e.target.dataset)
 
@@ -468,72 +470,6 @@ export default {
 				}
 			}
 		},
-
-
-		// /**
-		//  * @param {FocusEvent} e
-		//  */
-		// onFocusOut(e) {
-		// 	if (this.$refs.$suggestionsSelection?.$el && e.relatedTarget != this.$refs.$suggestionsSelection.$el)
-		// 		this.$nextTick(() => {
-		// 			this.suggestionsControl.closeSuggestionsPanel();
-		// 		});
-		// },
-
-		// /**
-		//  * @param {FocusEvent} e
-		//  */
-		// fakeInput_onFocusOut(e) {
-		// 	if (this.$refs.$suggestionsSelection?.$el && e.relatedTarget != this.$refs.$suggestionsSelection.$el && (!e.relatedTarget || !DomUtils.getParentUsingPredicate(e.relatedTarget, $el => $el == this.$refs.$suggestionsSelection)))
-		// 		this.$nextTick(() => {
-		// 			this.suggestionsControl.closeSuggestionsPanel();
-		// 		});
-		// },
-
-
-		// /**
-		//  *
-		//  * @param {HTMLInputElement} fakeInputEl
-		//  * @param {boolean} refreshSuggestions
-		//  * @param {boolean} focusOnFirstSuggestion
-		//  * @return {Promise<void>}
-		//  */
-		// async tryShowSuggestionPanelForFakeInput(fakeInputEl, refreshSuggestions, focusOnFirstSuggestion) {
-		// 	try {
-		// 		if (!this.suggestionsEnabled) {
-		// 			this.suggestionsControl.closeSuggestionsPanel();
-		// 			return;
-		// 		}
-		//
-		// 		const text = fakeInputEl.value;
-		//
-		// 		if (typeof (this.onValidateTextForSuggestions) == 'function' && !this.onValidateTextForSuggestions(text)) {
-		// 			this.suggestionsControl.closeSuggestionsPanel();
-		// 			return;
-		// 		}
-		//
-		// 		const fakeInputIndex = Number(fakeInputEl.dataset.fakeInputIndex);
-		//
-		// 		this.suggestionsControl.isLoading = false;
-		// 		this.suggestionsControl.showPanel = true;
-		// 		this.suggestionsControl.triggeredByFakeInputIndex = fakeInputIndex;
-		//
-		// 		if (refreshSuggestions && typeof (this.onSuggestionsRequired) == 'function') {
-		// 			this.suggestionsControl.isLoading = true;
-		// 			const suggestions = await this.onSuggestionsRequired(new WbSuggestionsRequiredEvent(text));
-		// 			this.suggestionsControl.suggestions = suggestions || [];
-		// 		}
-		//
-		// 		if (this.suggestionsControl.suggestions.length && focusOnFirstSuggestion)
-		// 			this.$refs.$suggestionsSelection.focus();
-		//
-		// 	} catch (err) {
-		// 		console.error(`ERR SHOWING SUGGESTIONS: `, err);
-		// 		//TODO set error on suggestions panel summary
-		// 	} finally {
-		// 		this.suggestionsControl.isLoading = false;
-		// 	}
-		// },
 
 
 		/**

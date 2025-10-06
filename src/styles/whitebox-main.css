@@ -313,18 +313,23 @@
  * ==============================
  */
 .--wb--horizontal-separator {
-	display: flex;
 	width: 100%;
 	height: 1px;
-	min-height: 1px;
 }
 .--wb--vertical-separator {
 	width: 1px;
-	min-width: 1px;
 	height: 100%;
 }
+
+.--wb--flex-separator {
+	flex: 0 0 1px;
+	align-self: stretch;
+}
+
+.--wb--flex-separator,
 .--wb--horizontal-separator,
 .--wb--vertical-separator {
+	/*flex: 0 0 auto;*/
 	/*background-color: color-mix(in hsl, var(--wb--local-fg-color) 20%, var(--wb--local-bg-color));*/
 	--wb--local-bg-color-contrast-perc: 10%;
 	background-color: var(--wb--local-bg-color-contrast);

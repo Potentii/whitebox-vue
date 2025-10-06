@@ -35,7 +35,8 @@
 					v-model="value"
 					:token-slot-class="tokenClass"
 					:allow-token-creation="allowTokenCreation"
-					@input="$emit('input', $event)"
+					:map-created-token="mapCreatedToken"
+					@input="oninput($event)"
 					@change="$emit('change', $event)"
 					@keyup="onkeyup($event)"
 					@focus="onfocus($event)">
@@ -54,7 +55,7 @@
 					:radio-value="radioValue"
 					:placeholder="placeholder"
 					v-model="value"
-					@input="$emit('input', $event)"
+					@input="oninput($event)"
 					@change="$emit('change', $event)"
 					@keyup="onkeyup($event)"
 					@focus="onfocus($event)">
@@ -70,7 +71,7 @@
 					:checkbox-value="checkboxValue"
 					:placeholder="placeholder"
 					v-model="value"
-					@input="$emit('input', $event)"
+					@input="oninput($event)"
 					@change="$emit('change', $event)"
 					@keyup="onkeyup($event)"
 					@focus="onfocus($event)">
@@ -88,7 +89,7 @@
 					:capture="capture"
 					:placeholder="placeholder"
 					v-model="value"
-					@input="$emit('input', $event)"
+					@input="oninput($event)"
 					@change="$emit('change', $event)"
 					@keyup="onkeyup($event)"
 					@focus="onfocus($event)">
@@ -104,7 +105,7 @@
 					:multiple="multiple"
 					:placeholder="placeholder"
 					v-model="value"
-					@input="$emit('input', $event)"
+					@input="oninput($event)"
 					@change="$emit('change', $event)"
 					@keyup="onkeyup($event)"
 					@focus="onfocus($event)">
@@ -128,7 +129,7 @@
 					:maxlength="maxLength"
 					:placeholder="placeholder"
 					v-model="value"
-					@input="$emit('input', $event)"
+					@input="oninput($event)"
 					@change="$emit('change', $event)"
 					@keyup="onkeyup($event)"
 					@focus="onfocus($event)"/>
@@ -158,7 +159,8 @@
 			@focusin="datalist_onfocusin($event)"
 			@focusout="datalist_onfocusout($event)"
 			@highlighted="$emit('highlighted', $event)"
-			@selected="datalist_onSelected($event)">
+			@selected="datalist_onSelected($event)"
+			@close-requested="isDatalistOpened = false">
 			<slot name="options" :highlighted="data.highlighted" :select="data.select"></slot>
 		</wb-datalist>
 
@@ -322,7 +324,6 @@ export default {
 			type: String,
 			required: false,
 		},
-
 		/**
 		 * @type {boolean}
 		 */
@@ -330,6 +331,13 @@ export default {
 			type: Boolean,
 			required: false,
 			default: false
+		},
+		/**
+		 * @type {?function(*):*}
+		 */
+		mapCreatedToken: {
+			type: Function,
+			required: false
 		},
 
 
@@ -340,6 +348,14 @@ export default {
 		datalistTeleportTo: {
 			type: String,
 			required: false,
+		},
+		/**
+		 * @type {boolean}
+		 */
+		datalistCloseOnSelect: {
+			type: Boolean,
+			required: false,
+			default: false,
 		},
 
 
@@ -513,7 +529,18 @@ export default {
 						// this.$emit('datalistOpened');
 					}*/
 				}
+			} else if(e.key === 'Escape'){
+				if(this.isDatalistOpened) {
+					e.preventDefault();
+					this.isDatalistOpened = false;
+				}
 			}
+		},
+
+
+		oninput(e){
+			this.$emit('input', e);
+			this.isDatalistOpened = true;
 		},
 
 
@@ -614,7 +641,10 @@ export default {
 					break;
 			}
 
-			this.isDatalistOpened = false;
+			if(this.datalistCloseOnSelect) {
+				setTimeout(() => this.isDatalistOpened = false, 100);
+				// this.isDatalistOpened = false;
+			}
 
 			this.$emit('selected', e);
 		},

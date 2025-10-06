@@ -1,6 +1,6 @@
 {
 	"name": "whitebox-vue",
-	"version": "0.0.20",
+	"version": "0.0.21",
 	"description": "Whitebox components library for Vue",
 	"author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
 	"license": "MIT",
@@ -41,7 +41,9 @@
 	"dependencies": {
 		"@potentii/browser-utils": "1.1.7",
 		"@potentii/math-utils": "1.0.1",
-		"@potentii/geometry-utils": "1.0.1"
+		"@potentii/geometry-utils": "1.0.1",
+		"@potentii/type-utils": "1.0.1",
+		"uuid": "13.0.0"
 	},
 
 

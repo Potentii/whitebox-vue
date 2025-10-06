@@ -10,6 +10,10 @@ import WbFile from "./components/wb-file.vue";
 import WbThumb from "./components/wb-thumb.vue";
 import WbFieldset from "./components/input/wb-fieldset.vue";
 import WbLegend from "./components/input/wb-legend.vue";
+import WbSnackbar from "./components/snackbar/wb-snackbar.vue";
+import Snackbar from "./components/snackbar/snackbar.mjs";
+import Snack from "./components/snackbar/snack.mjs";
+import {useWbSnackbarStore} from "./components/snackbar/wb-snack-store.mjs";
 
 import {WhiteboxResets, WhiteboxMain} from "./styles/styles.mjs";
 
@@ -32,6 +36,10 @@ export {
 	WbThumb,
 	WbFieldset,
 	WbLegend,
+	WbSnackbar,
+	Snackbar,
+	Snack,
+	useWbSnackbarStore,
 
 	WhiteboxResets,
 	WhiteboxMain,

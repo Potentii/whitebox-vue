@@ -9,7 +9,8 @@
 			v-inject-size="{ getEl: () => anchorEl }"
 			@focusin="$emit('focusin', $event)"
 			@focusout="$emit('focusout', $event)"
-			@keydown="onkeydown($event)">
+			@keydown="onkeydown($event)"
+			@keyup="onkeyup($event)">
 			<slot :highlighted="highlightedValue" :select="control_select"></slot>
 		</div>
 	</teleport>
@@ -98,6 +99,7 @@ export default {
 		'selected',
 		'focusin',
 		'focusout',
+		'closeRequested',
 	],
 
 
@@ -134,6 +136,12 @@ export default {
 		focusOut(){
 			this.highlightedValue = null;
 			this.anchorEl.focus();
+		},
+
+
+		close(){
+			this.focusOut();
+			this.$emit('closeRequested');
 		},
 
 
@@ -211,6 +219,19 @@ export default {
 
 			this.moveHighlight(movementColumn, movementRow);
 		},
+
+		/**
+		 *
+		 * @param {KeyboardEvent} e
+		 */
+		onkeyup(e) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				this.close();
+			}
+		},
+
+
 
 
 		/**

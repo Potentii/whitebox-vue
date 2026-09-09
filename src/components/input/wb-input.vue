@@ -602,7 +602,9 @@ export default {
 		 */
 		datalist_handleFocusOut(e){
 			if(this.isDatalistOpened){
-				const newFocusIsInsideDatalist = !!DomUtils.getParentUsingPredicate(e.relatedTarget, el => el === this.$refs.datalist?.$refs?.panel);
+				const isWithinDatalist = (newFocusEl) => !!DomUtils.getParentUsingPredicate(newFocusEl, el => el === this.$refs.datalist?.$refs?.panel, false, true);
+
+				const newFocusIsInsideDatalist = isWithinDatalist(e.relatedTarget);
 
 				if(!newFocusIsInsideDatalist) {
 					this.isDatalistOpened = false;

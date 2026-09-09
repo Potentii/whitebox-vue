@@ -31,6 +31,7 @@
 import {InjectOffset} from "../../directives/inject-offset.mjs";
 import {InjectSize} from "../../directives/inject-size.mjs";
 import {MathUtils} from "@potentii/math-utils";
+import {DomUtils} from "@potentii/browser-utils";
 
 
 
@@ -307,15 +308,18 @@ export default {
 		 * @return {WbDatalistOptionVo[][]}
 		 */
 		getOptionsMatrix(){
-			const optionEls = this.getOptionsElements();
-			const matrix = [];
-			let row = 0;
-			let column;
-			let lastY = 0;
-			for (let optionEl of optionEls) {
-				const y = optionEl.offsetTop;
+			const optionEls = [...this.getOptionsElements()]
+				.map(el => ({ el: el, position: DomUtils.relativePosition(el, this.$refs.panel) }))
+				.toSorted((el1, el2) => (el1.position.y - el2.position.y) || (el1.position.x - el2.position.x) );
 
-				if(!MathUtils.moreOrLess(lastY, y, 3)) {
+			const matrix = [];
+			let row = -1;
+			let column;
+			let lastY = undefined;
+			for (let optionEl of optionEls) {
+				const y = optionEl.position.y;
+
+				if(lastY === undefined || !MathUtils.moreOrLess(lastY, y, 3)) {
 					lastY = y;
 					row++;
 				}
@@ -328,8 +332,8 @@ export default {
 				column++;
 
 				matrix[row][column] = {
-					el: optionEl,
-					value: optionEl.dataset.value,
+					el: optionEl.el,
+					value: optionEl.el.dataset.value,
 				};
 			}
 

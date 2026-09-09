@@ -1,6 +1,6 @@
 {
 	"name": "whitebox-vue",
-	"version": "0.0.22",
+	"version": "0.0.23",
 	"description": "Whitebox components library for Vue",
 	"author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
 	"license": "MIT",
@@ -43,15 +43,15 @@
 		"@potentii/math-utils": "1.0.1",
 		"@potentii/geometry-utils": "1.0.1",
 		"@potentii/type-utils": "1.0.1",
-		"uuid": "13.0.0"
+		"uuid": "14.0.2"
 	},
 
 
 	"devDependencies": {
-		"vite-plugin-dts": "4.5.4",
-		"@vitejs/plugin-vue": "6.0.1",
-		"@vue/tsconfig": "0.8.1",
-		"vite": "7.1.9"
+		"vite-plugin-dts": "5.1.0",
+		"@vitejs/plugin-vue": "6.0.8",
+		"@vue/tsconfig": "0.9.1",
+		"vite": "8.2.2"
 	},
 
 

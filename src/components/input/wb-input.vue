@@ -8,6 +8,7 @@
 		@focusin="onfocusin($event)"
 		@focusout="onfocusout($event)"
 		@click="onclick($event)"
+		@paste="onpaste($event)"
 		tabindex="0"
 		:data-type="type">
 
@@ -577,6 +578,17 @@ export default {
 			this.$emit('click', e);
 			if((this.type === 'radio' || this.type === 'checkbox') && e.target !== this.getMainInput() && !DomUtils.getParentUsingPredicate(e.target, el => el === this.getMainInput() || el.control === this.getMainInput())){
 				this.getMainInput()?.click?.();
+			}
+		},
+
+		/**
+		 *
+		 * @param {ClipboardEvent} e
+		 */
+		onpaste(e){
+			this.$emit('paste', e);
+			if(this.type === 'file'){
+				this.$refs.input.onpaste(e);
 			}
 		},
 

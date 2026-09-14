@@ -231,6 +231,25 @@ export default {
 		},
 
 
+		/**
+		 *
+		 * @param {ClipboardEvent} e
+		 */
+		onpaste(e){
+			if(!e?.clipboardData?.files?.length)
+				return;
+
+			if(this.multiple){
+				if(this.value && this.value.push)
+					this.value.push(...e.clipboardData.files);
+				else
+					this.value = [...e.clipboardData.files];
+			} else {
+				this.value = [e.clipboardData.files.item(0)];
+			}
+		},
+
+
 
 		/**
 		 *

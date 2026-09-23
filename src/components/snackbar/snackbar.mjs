@@ -37,9 +37,10 @@ export default class Snackbar{
 	 * @param {?string} [submessage]
 	 * @param {number|ESnackTimeout} [timeout]
 	 * @param {*} [data]
+	 * @param {?SnackOptions} [options]
 	 */
-	addSnack(level, message, submessage, timeout, data){
-		const newSnack = new Snack(uuid.v4(), level, message, submessage, timeout, data);
+	addSnack(level, message, submessage, timeout, data, options){
+		const newSnack = new Snack(uuid.v4(), level, message, submessage, timeout, data, options);
 		this.#store.addNewSnack(newSnack);
 	}
 
@@ -50,6 +51,14 @@ export default class Snackbar{
 	 */
 	removeSnackById(id){
 		this.#store.removeSnackById(id);
+	}
+
+
+	/**
+	 *
+	 */
+	clearSnackbar(){
+		this.#store.clearSnackStack();
 	}
 
 

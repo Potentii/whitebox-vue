@@ -1,14 +1,31 @@
 <template>
-	<div class="wb-snackbar">
+	<div
+		class="wb-snackbar"
+		@focusin="onFocusIn($event)"
+		@focusout="onFocusOut($event)"
+		@mouseenter="onMouseEnter($event)"
+		@mouseleave="onMouseLeave($event)">
 
 		<transition-group name="-snack-fade" :duration="{ enter: 150, leave: 150 }">
 			<wb-snack
 				class="-snack"
 				:key="snack.id"
 				:snack="snack"
-				v-for="snack in snackStack"
 				@dismiss="snack_onDismiss($event)"
-				:dismissable="dismissable">
+				@focusin="onFocusIn($event)"
+				@focusout="onFocusOut($event)"
+				@mouseenter="onMouseEnter($event)"
+				@mouseleave="onMouseLeave($event)"
+				v-for="snack in snackStack">
+				<template #content="{ snack, dismiss }" v-if="$slots.snack_content">
+					<slot name="snack_content" :snack="snack" :dismiss="dismiss"></slot>
+				</template>
+				<template #pre="{ snack, dismiss }" v-if="$slots.snack_pre">
+					<slot name="snack_pre" :snack="snack" :dismiss="dismiss"></slot>
+				</template>
+				<template #controls="{ snack, dismiss }" v-if="$slots.snack_controls">
+					<slot name="snack_controls" :snack="snack" :dismiss="dismiss"></slot>
+				</template>
 			</wb-snack>
 		</transition-group>
 
@@ -29,19 +46,12 @@ export default {
 
 	components: { WbSnack },
 
-	props: {
-		'dismissable': {
-			type: Boolean,
-			required: false,
-			default: false,
-		},
-	},
 
 
 	computed: {
 
 
-		...mapState(useWbSnackbarStore, [ 'snackStack' ]),
+		...mapState(useWbSnackbarStore, [ 'snackStack', 'isPaused' ]),
 
 	},
 
@@ -52,7 +62,7 @@ export default {
 
 	methods: {
 
-		...mapActions(useWbSnackbarStore, [ 'removeSnackById' ]),
+		...mapActions(useWbSnackbarStore, [ 'removeSnackById', 'pauseSnackbarTimeout', 'resumeSnackbarTimeout', ]),
 
 		/**
 		 *
@@ -61,6 +71,28 @@ export default {
 		snack_onDismiss(snack){
 			this.removeSnackById(snack.id);
 			this.$emit('dismiss', snack);
+		},
+
+
+		onFocusIn(e){
+			if(this.isPaused)
+				return;
+			this.pauseSnackbarTimeout();
+		},
+		onFocusOut(e){
+			if(!this.isPaused)
+				return;
+			this.resumeSnackbarTimeout();
+		},
+		onMouseEnter(e){
+			if(this.isPaused)
+				return;
+			this.pauseSnackbarTimeout();
+		},
+		onMouseLeave(e){
+			if(!this.isPaused)
+				return;
+			this.resumeSnackbarTimeout();
 		},
 
 	}

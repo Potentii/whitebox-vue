@@ -1,7 +1,7 @@
 <template>
 	<component
 		class="wb-button"
-		v-bind="$attrs"
+		v-bind="{...$attrs, ...(href?.trim?.()?.length && { href: href }) }"
 		:class="{
 			'--capsule': !!capsule,
 			'--outline': !!outline,
@@ -23,15 +23,16 @@
 			'--size-small': !!sizeSmall,
 			'--size-smallest': !!sizeSmallest,
 
-			'--is-button': type === 'button' && !to,
+			'--is-button': type === 'button' && !to && !href,
 			'--is-submit': type === 'submit',
-			'--is-link': !!to,
+			'--is-link': !!to || !!href,
 	 	}"
 		:data-relevancy="relevancy"
 		:data-intent="intent"
 		:data-align="align"
 		:is="component"
 		:to="to"
+
 		:form="formId"
 		@click="$emit('click', $event)"
 		@submit="$emit('submit', $event)"
@@ -205,6 +206,10 @@ export default {
 			type: Object,
 			required: false,
 		},
+		href: {
+			type: String,
+			required: false
+		},
 
 
 		/**
@@ -341,10 +346,10 @@ export default {
 
 
 		/**
-		 * @returns {'RouterLink'|'button'}
+		 * @returns {'RouterLink'|'button'|'a'}
 		 */
 		component(){
-			return this.to ? 'RouterLink' : 'button';
+			return this.to ? 'RouterLink' : (this.href ? 'a' : 'button');
 		},
 
 		/**

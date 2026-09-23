@@ -30,11 +30,18 @@ const TIMEOUTS = {
 	SUPER_LONG: 20_000,
 }
 
+
+/**
+ * @typedef {{ cannotDismiss: boolean }} SnackOptions
+ */
+
+
 export default class Snack{
 	/**
 	 * @type {string}
 	 */
 	id;
+
 	/**
 	 * @type {string}
 	 */
@@ -47,19 +54,35 @@ export default class Snack{
 	 * @type {?string}
 	 */
 	submessage;
+
 	/**
 	 * @type {number}
 	 */
 	timeout;
+	/**
+	 * @type {number}
+	 */
+	timeoutLeft;
+	/**
+	 * @type {?number}
+	 */
+	timeoutId;
+	/**
+	 * @type {?number}
+	 */
+	timeoutStartedAt;
+
 	/**
 	 * @type {*}
 	 */
 	data;
 
 	/**
-	 * @type {?number}
+	 *
+	 * @type {?SnackOptions}
 	 */
-	timeoutId;
+	options;
+
 
 
 
@@ -71,14 +94,17 @@ export default class Snack{
 	 * @param {?string} [submessage]
 	 * @param {number|ESnackTimeout} [timeout]
 	 * @param {*} [data]
+	 * @param {?SnackOptions} [options]
 	 */
-	constructor(id, level, message, submessage = null, timeout = Snack.TIMEOUTS.MEDIUM, data = null) {
+	constructor(id, level, message, submessage = null, timeout = Snack.TIMEOUTS.MEDIUM, data = null, options = null) {
 		this.id = id;
 		this.level = level;
 		this.message = message;
 		this.submessage = submessage;
 		this.timeout = timeout;
+		this.timeoutLeft = timeout;
 		this.data = data;
+		this.options = options;
 	}
 
 

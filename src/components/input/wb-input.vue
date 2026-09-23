@@ -3,6 +3,7 @@
 		class="wb-input"
 		:class="{
 			'--transparent': transparent,
+			'--disabled': disabled,
 		}"
 		@focus="focus"
 		@focusin="onfocusin($event)"
@@ -765,10 +766,15 @@ export default {
 .wb-input:not([data-type="select"]){
 	cursor: text;
 }
+.wb-input.--disabled,
 .wb-input[data-type="radio"],
 .wb-input[data-type="checkbox"],
 .wb-input[data-type="file"],
 .wb-input[data-type="select"]{
+	cursor: default;
+}
+
+.wb-input.--disabled{
 	cursor: default;
 }
 
@@ -803,13 +809,10 @@ export default {
 
 	display: flex;
 	flex-direction: column;
-	/*align-items: center;*/
-	/*gap: 0.25em;*/
 }
 .wb-input > .-box > .-input-container > .-label{
 	position: absolute;
 	top: -1.4em;
-
 
 	opacity: 0.8;
 	font-weight: 400;
@@ -827,28 +830,14 @@ export default {
 	opacity: 0;
 	transform: translateY(1em);
 }
+
 .wb-input > .-box > .-input-container > .-input{
 	flex: 1 1 auto;
 
-	/*width: auto;*/
-	/*min-width: 8em;*/
-
-	/*font-size: 16px;*/
 	color: var(--wb--local-fg-color);
 	font-size: 1em;
-	/*padding: var(--wb-input--input-padding);*/
-	/*padding: 1em 0.5em;*/
-	/*background: var(--wb-input--bg-color);*/
-
 }
-/*.wb-input > .-box > .-box{*/
-/*	flex: 0 0 auto;*/
-
-/*	background: var(--wb-input--box-color);*/
-/*	width: 100%;*/
-/*	height: 3pt;*/
-/*	min-height: 3pt;*/
-/*	max-height: 3pt;*/
-/*	border-radius: 100px;*/
-/*}*/
+.wb-input.--disabled > .-box > .-input-container > .-input{
+	opacity: 0.3;
+}
 </style>

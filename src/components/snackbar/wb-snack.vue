@@ -1,13 +1,16 @@
 <template>
 	<li class="wb-snack" :data-level="snack.level">
 
-		<slot name="content" :snack="snack" :dismissable="dismissable" :dismiss="dismiss"></slot>
+		<slot name="content" :snack="snack" :dismiss="dismiss"></slot>
 
 
 		<template v-if="!$slots.content">
 
 
-			<wb-icon class="-icon" v-if="levelIcon">{{ levelIcon }}</wb-icon>
+			<div class="-pre">
+				<slot name="pre" :snack="snack" :dismiss="dismiss"></slot>
+				<wb-icon class="-icon" v-if="(!$slots.pre) && levelIcon">{{ levelIcon }}</wb-icon>
+			</div>
 
 			<div class="--wb--flex-separator" v-if="levelIcon"></div>
 
@@ -17,13 +20,16 @@
 				<span class="-submessage">{{ snack.submessage }}</span>
 			</div>
 
+
 			<!-- * Controls * -->
-			<div class="-controls">
+			<div class="-controls" v-if="(!snack.options?.cannotDismiss) || $slots.controls">
+
+				<slot name="controls" :snack="snack" :dismiss="dismiss"></slot>
 
 				<wb-button
 					class="-dismiss"
 					icon="close"
-					v-if="dismissable"
+					v-if="!snack.options?.cannotDismiss"
 					@click="dismiss">
 				</wb-button>
 
@@ -51,15 +57,9 @@ export default {
 
 	props: {
 
-		'snack': {
+		snack: {
 			type: Snack,
 			required: true
-		},
-
-		'dismissable': {
-			type: Boolean,
-			required: false,
-			default: false,
 		},
 
 	},
@@ -89,6 +89,11 @@ export default {
 
 	methods: {
 		dismiss(){
+			if(this.snack.options?.cannotDismiss) {
+				console.warn(`Cannot dismiss Snack with ID "${this.snack.id}"`);
+				return;
+			}
+
 			this.$emit('dismiss', this.snack);
 		},
 	}
@@ -195,17 +200,24 @@ export default {
 
 /*
  * -----------------------------------------
- * Content
+ * Pre
  * -----------------------------------------
  */
-.wb-snack > .-icon{
+.wb-snack > .-pre{
 	flex: 0 0 auto;
-
-	user-select: none;
 
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+}
+.wb-snack > .-pre > .-icon{
+	flex: 0 0 auto;
+
+	user-select: none;
+
+	/*display: flex;*/
+	/*flex-direction: row;*/
+	/*align-items: center;*/
 
 	font-size: calc( var(--var-fsize) + 8px);
 

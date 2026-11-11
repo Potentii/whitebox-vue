@@ -670,6 +670,40 @@ export default {
 		},
 
 
+		/**
+		 *
+		 * @return {(import('vue').VNode)[]}
+		 */
+		evaluateOptionsSlot(){
+			return this.$slots?.options?.() || [];
+		},
+
+		/**
+		 *
+		 * @return {(import('vue').VNode)[]}
+		 */
+		evaluateOptionsElements(){
+			const arr = [];
+
+			const rec = (opts) => {
+				for (let opt of opts) {
+					if(opt?.type?.name === 'wb-option'){
+						arr.push(opt);
+					} else{
+						if(opt?.children?.length){
+							rec(opt?.children)
+						}
+					}
+				}
+			}
+
+
+			rec(this.evaluateOptionsSlot());
+
+			return arr;
+		},
+
+
 
 		/**
 		 *

@@ -260,13 +260,21 @@ export default {
 		// },
 
 
-
+		/**
+		 *
+		 * @param {?string} value
+		 * @return {?import('vue').VNode}
+		 */
 		getOptionVDomForValue(value){
-			return this.getParentWbInput()?.$slots?.options?.()?.find($opt => $opt.props.value === value);
+			return this.getParentWbInput()?.evaluateOptionsElements()?.find($opt => $opt?.props?.value === value);
 		},
 
 
-
+		/**
+		 *
+		 * @param {?string} value
+		 * @return {?import('vue').VNode}
+		 */
 		getContentVDomForValue(value){
 			return this.getOptionVDomForValue(value)?.children?.default?.()?.[0];
 		}

@@ -10,7 +10,7 @@
 		@focusout="onfocusout($event)"
 		@click="onclick($event)"
 		@paste="onpaste($event)"
-		tabindex="0"
+		:tabindex="disabled ? '-1' : '0'"
 		:data-type="type">
 
 		<slot name="top"></slot>
@@ -79,6 +79,25 @@
 					@focus="onfocus($event)">
 				</wb-checkbox-input-impl>
 
+				<wb-toggle-input-impl
+					class="-input -toggle"
+					ref="input"
+					v-else-if="type === 'toggle'"
+					:required="required"
+					:disabled="disabled"
+					:name="name"
+					:toggle-handle-icon="toggleHandleIcon"
+					:placeholder="placeholder"
+					v-model="value"
+					@input="oninput($event)"
+					@change="$emit('change', $event)"
+					@keyup="onkeyup($event)"
+					@focus="onfocus($event)">
+					<template #toggleHandleContent="slotData" v-if="$slots.toggleHandleContent">
+						<slot name="toggleHandleContent" v-if="$slots.toggleHandleContent" :value="slotData?.value"></slot>
+					</template>
+				</wb-toggle-input-impl>
+
 				<wb-file-input-impl
 					class="-input -file"
 					ref="input"
@@ -98,7 +117,7 @@
 				</wb-file-input-impl>
 
 				<wb-select-input-impl
-					class="-input -file"
+					class="-input -select"
 					ref="input"
 					v-else-if="type === 'select'"
 					:required="required"
@@ -172,7 +191,7 @@
 
 <script>
 /**
- * @typedef {'text'|'email'|'search'|'password'|'file'|'number'|'tokens'|'radio'|'checkbox'|'select'} WbInputType
+ * @typedef {'text'|'email'|'search'|'password'|'file'|'number'|'tokens'|'radio'|'checkbox'|'toggle'|'select'} WbInputType
  */
 
 import WbRadioInputImpl from "./impl/wb-radio-input-impl.vue";
@@ -183,6 +202,7 @@ import WbDatalist from "./wb-datalist.vue";
 import {DomUtils} from "@potentii/browser-utils";
 import WbTokensInputImpl from "./impl/wb-tokens-input-impl.vue";
 import WbIcon from "../wb-icon.vue";
+import WbToggleInputImpl from "./impl/wb-toggle-input-impl.vue";
 
 export default {
 
@@ -190,7 +210,14 @@ export default {
 
 	components: {
 		WbIcon,
-		WbTokensInputImpl, WbDatalist, WbSelectInputImpl, WbFileInputImpl, WbCheckboxInputImpl, WbRadioInputImpl},
+		WbTokensInputImpl,
+		WbDatalist,
+		WbSelectInputImpl,
+		WbFileInputImpl,
+		WbCheckboxInputImpl,
+		WbRadioInputImpl,
+		WbToggleInputImpl,
+	},
 
 
 	props: {
@@ -202,7 +229,7 @@ export default {
 			type: String,
 			required: true,
 			default: 'text',
-			validate: val => ['text','email','search','password','file','number','tokens','radio','checkbox','select'].includes(val),
+			validate: val => ['text','email','search','password','file','number','tokens','radio','checkbox','toggle','select'].includes(val),
 		},
 
 		placeholder: {
@@ -226,6 +253,14 @@ export default {
 		 * @type {?*}
 		 */
 		checkboxValue: {
+			required: false,
+		},
+
+		/**
+		 * @type {?string}
+		 */
+		toggleHandleIcon: {
+			type: String,
 			required: false,
 		},
 
@@ -686,7 +721,7 @@ export default {
 @property --wb-input--height {
 	syntax: "<lenght-percentage>";
 	inherits: true;
-	initial-value: auto;
+	initial-value: 64px;
 }
 
 @property --wb-input--bg-color {
@@ -731,6 +766,17 @@ export default {
 }
 
 
+/*@property --wb-input--toggle-disabled-bg {*/
+/*	syntax: "<color>";*/
+/*	inherits: true;*/
+/*	initial-value: var(--wb--tertiary-color);*/
+/*}*/
+@property --wb-input--toggle-enabled-bg {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: var(--wb--positive-color);
+}
+
 
 
 
@@ -749,19 +795,23 @@ export default {
 	--var-fg-color: var(--wb-input--fg-color, var(--wb--local-fg-color));
 
 
-	/*--var-bg-color: hsl(from var(--wb--local-bg-color) h s calc(l + 10));*/
 
-	/*--var-bg-color: var(--wb--local-bg-color-contrast);*/
+	/*--wb-input--internal--toggle-disabled-bg: var(--wb-input--toggle-disabled-bg, var(--wb--tertiary-color));*/
+	--wb-input--internal--toggle-enabled-bg: var(--wb-input--toggle-enabled-bg, var(--wb--positive-color));
+	--wb-input--internal--height: var(--wb-input--height, 64px);
 
+	min-height: var(--wb-input--internal--height);
 
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
+	justify-content: stretch;
 
 	gap: 0.25em;
 }
 .wb-input:not([data-type="radio"]),
 .wb-input:not([data-type="checkbox"]),
+.wb-input:not([data-type="toggle"]),
 .wb-input:not([data-type="file"]),
 .wb-input:not([data-type="select"]){
 	cursor: text;
@@ -769,6 +819,7 @@ export default {
 .wb-input.--disabled,
 .wb-input[data-type="radio"],
 .wb-input[data-type="checkbox"],
+.wb-input[data-type="toggle"],
 .wb-input[data-type="file"],
 .wb-input[data-type="select"]{
 	cursor: default;
@@ -779,16 +830,17 @@ export default {
 }
 
 .wb-input > .-box{
-	flex: 0 0 auto;
+	flex: 1 1 auto;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 
 	gap: 1em;
 
-	height: var(--wb-input--height);
+	/*height: var(--wb-input--height);*/
 
-	padding: 1.25em 1.25em;
+	/*padding: 1.25em 1.25em;*/
+	padding: 0 1.25em;
 
 	font-size: var(--wb-input--font-size);
 
@@ -804,6 +856,11 @@ export default {
 .wb-input.--transparent > .-box{
 	--wb--local-bg-color: transparent;
 }
+.wb-input:not(.--disabled):focus-within > .-box{
+	box-shadow: inset 0 0 0 1pt color-mix(in hsl, var(--wb--local-fg-color) 15%, var(--wb--local-bg-color));
+}
+
+
 .wb-input > .-box > .-input-container{
 	flex: 1 1 auto;
 
@@ -840,4 +897,5 @@ export default {
 .wb-input.--disabled > .-box > .-input-container > .-input{
 	opacity: 0.3;
 }
+
 </style>

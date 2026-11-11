@@ -5,6 +5,7 @@
 			class="-input -native"
 			ref="input"
 			type="file"
+			tabindex="-1"
 			:id="randId"
 			:name="name"
 			:required="required"

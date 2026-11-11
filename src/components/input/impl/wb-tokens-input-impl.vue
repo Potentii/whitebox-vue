@@ -503,6 +503,8 @@ export default {
 	row-gap: 0.5em;
 
 
+	padding: 0.5em 0;
+
 }
 
 .wb-tokens-input-impl > .-fake-input {

@@ -6,7 +6,7 @@ TODOs for this project.
 
 ## Inputs
 
-- [ ] Add Toggle component.
+- [x] Add Toggle component.
 - [ ] Add slider inputs for number.
 - [ ] Add datepicker component.
 - [ ] Add timepicker component.
@@ -16,7 +16,7 @@ TODOs for this project.
 - [ ] Support for HTML5 validation (required, pattern, etc).
 - [ ] React to HTML validation (and custom JS input validation) errors in the inputs, and show the error messages, and display if it's valid or not.
 - [ ] Add support for customize the placeholder of radio/checkbox inputs (using slots).
-- [ ] Bug: Select input don't show the pre-selected option.
+- [x] Bug: Select input don't show the pre-selected option.
 
 ---
 
@@ -32,7 +32,7 @@ TODOs for this project.
 - [ ] Add split component (maybe this will generate additional dependencies).
 - [ ] Make the sizes of the components match.
 - [ ] Add error summary component.
-- [ ] Option to pause SnackBar timeout if the user is hovering over it.
+- [x] Option to pause SnackBar timeout if the user is hovering over it.
 - [ ] Option to show SnackBar timeout timer progress.
 
 

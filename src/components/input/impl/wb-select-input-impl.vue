@@ -19,7 +19,10 @@
 			class="-output"
 			ref="output"
 			@focus="onfocus($event)"
-			@keyup="$emit('keyup', $event)">{{ selectedLabel }}</output>
+			@keyup="$emit('keyup', $event)"><component :is="getContentVDomForValue(value)"></component></output>
+
+
+
 
 
 
@@ -159,29 +162,30 @@ export default {
 
 
 
-	watch: {
-
-		value: {
-			handler(value) {
-				const extractLabel = () => {
-					const datalist = this.getParentWbInput()?.getDatalist();
-					const option = datalist?.getOptionsElements()?.find(optionElement => optionElement?.dataset?.value === value);
-					return option?.innerText;
-				}
-				this.selectedLabel = extractLabel();
-
-				if(this.selectedLabel === undefined){
-					setTimeout(() => {
-						this.selectedLabel = extractLabel();
-					}, 0);
-				}
-
-			},
-			immediate: true,
-		}
-
-
-	},
+	// watch: {
+	//
+	// 	value: {
+	// 		handler(value) {
+	// 			// const extractLabel = () => {
+	// 			// 	const datalist = this.getParentWbInput()?.getDatalist();
+	// 			// 	const option = datalist?.getOptionsElements()?.find(optionElement => optionElement?.dataset?.value === value);
+	// 			// 	return option?.innerText;
+	// 			// }
+	// 			this.selectedLabel = this.getLabelForValue(value);
+	// 			console.log('a', value, this.selectedLabel)
+	// 			if(this.selectedLabel === undefined){
+	// 				setTimeout(() => {
+	// 					this.selectedLabel = this.getLabelForValue(value);
+	// 					console.log('b', value, this.selectedLabel)
+	// 				}, 2000);
+	// 			}
+	//
+	// 		},
+	// 		immediate: true,
+	// 	}
+	//
+	//
+	// },
 
 
 
@@ -238,6 +242,34 @@ export default {
 		onSelectedFromDatalist(e){
 			this.value = e.value;
 		},
+
+
+		// getLabelForValue(value){
+		//
+		// 	// const $options = this.getParentWbInput().$slots.options().find($opt => $opt.props.value === value);
+		//
+		//
+		// 	console.log(this.getOptionVDomForValue(value).children?.default?.()?.[0])
+		//
+		// 	// console.log(a)
+		//
+		// 	const datalist = this.getParentWbInput()?.getDatalist();
+		// 	console.log(datalist)
+		// 	const option = datalist?.getOptionsElements()?.find(optionElement => optionElement?.dataset?.value === value);
+		// 	return option?.innerText;
+		// },
+
+
+
+		getOptionVDomForValue(value){
+			return this.getParentWbInput()?.$slots?.options?.()?.find($opt => $opt.props.value === value);
+		},
+
+
+
+		getContentVDomForValue(value){
+			return this.getOptionVDomForValue(value)?.children?.default?.()?.[0];
+		}
 	}
 
 }
